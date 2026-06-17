@@ -1,0 +1,25 @@
+# ===== WordPress =====
+# Core
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/debug.log
+wp-content/mu-plugins/
+
+# ===== Directories =====
+.DS_Store
+Thumbs.db
+node_modules/
+vendor/
+.vscode/
+.idea/
+
+# ===== Logs =====
+*.log
+error_log
+
+# ===== IDE =====
+*.swp
+*.swo
+*.bak
+*~

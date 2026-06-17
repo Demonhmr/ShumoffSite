@@ -1,0 +1,85 @@
+<!-- ============================================
+  Shumoff Theme — Calculator Template
+  ============================================ -->
+
+<section class="section section--alt" id="calculator">
+  <div class="container">
+    <div class="section__header">
+      <p class="section__subtitle">Калькулятор</p>
+      <h2>Рассчитайте стоимость ремонта</h2>
+      <p>Выберите параметры — мы подготовим предварительную смету за минуту</p>
+    </div>
+
+    <form class="calculator" data-validate>
+      <div class="calculator__row">
+        <div class="calculator__group">
+          <label class="calculator__label" for="calc-brand">Марка квартиры / дома</label>
+          <select class="form__select" id="calc-brand" name="brand">
+            <option value="" disabled selected>Выберите марку</option>
+            <option value="panel">Панельный дом</option>
+            <option value="brick">Кирпичный дом</option>
+            <option value="monolith">Монолитный дом</option>
+            <option value="private">Частный дом</option>
+            <option value="other">Другое</option>
+          </select>
+        </div>
+
+        <div class="calculator__group">
+          <label class="calculator__label" for="calc-model">Модель / серия</label>
+          <select class="form__select" id="calc-model" name="model">
+            <option value="" disabled selected>Выберите модель</option>
+            <option value="standard">Стандартная планировка</option>
+            <option value="studio">Студия</option>
+            <option value="euro">Евродвушка / Евротрёшка</option>
+            <option value="loft">Лофт</option>
+            <option value="custom">Нестандартная</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="calculator__group" style="margin-bottom: 24px;">
+        <label class="calculator__label" for="calc-worktype">Тип работ</label>
+        <select class="form__select" id="calc-worktype" name="worktype">
+          <option value="" disabled selected>Выберите тип работ</option>
+          <option value="cosmetic">Косметический ремонт</option>
+          <option value="capital">Капитальный ремонт</option>
+          <option value="design">Дизайнерский ремонт</option>
+          <option value="turnkey">Ремонт под ключ</option>
+          <option value="redevelopment">Перепланировка</option>
+        </select>
+      </div>
+
+      <div class="calculator__row">
+        <div class="calculator__group">
+          <label class="calculator__label" for="calc-area">Площадь (м²)</label>
+          <input
+            class="form__input"
+            type="number"
+            id="calc-area"
+            name="area"
+            placeholder="Например: 65"
+            min="1"
+          >
+        </div>
+
+        <div class="calculator__group">
+          <label class="calculator__label" for="calc-rooms">Количество комнат</label>
+          <select class="form__select" id="calc-rooms" name="rooms">
+            <option value="" disabled selected>Выберите</option>
+            <option value="studio">Студия</option>
+            <option value="1">1 комната</option>
+            <option value="2">2 комнаты</option>
+            <option value="3">3 комнаты</option>
+            <option value="4+">4+ комнат</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn--lg" style="width: 100%; margin-top: 24px;">
+        Рассчитать
+      </button>
+
+      <p class="form__note">Нажав кнопку, вы получите предварительную оценку стоимости</p>
+    </form>
+  </div>
+</section>
