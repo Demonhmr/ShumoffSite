@@ -10,6 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Прямой доступ запрещен
 }
 
+define( 'SHUMOFF_CORE_DIR', plugin_dir_path( __FILE__ ) );
+
+require_once SHUMOFF_CORE_DIR . 'includes/prices.php';
+
 add_action( 'init', 'shumoff_register_cpts_and_taxonomies' );
 
 function shumoff_register_cpts_and_taxonomies() {
@@ -289,10 +293,14 @@ function shumoff_register_acf_fields() {
 		'title'    => 'Настройки автомобиля',
 		'fields'   => array(
 			array(
-				'key'   => 'field_car_class',
-				'label' => 'Класс автомобиля',
-				'name'  => 'car_class',
-				'type'  => 'text',
+				'key'           => 'field_car_class',
+				'label'         => 'Тип кузова',
+				'name'          => 'car_class',
+				'type'          => 'select',
+				'choices'       => array_combine( shumoff_get_body_types(), shumoff_get_body_types() ),
+				'allow_null'    => true,
+				'ui'            => true,
+				'instructions'  => 'Определяет таблицу цен на странице автомобиля.',
 			),
 			array(
 				'key'     => 'field_car_full_price',
@@ -314,7 +322,172 @@ function shumoff_register_acf_fields() {
 		),
 	) );
 
-	// 3.4. Поля для Отзывов
+	// 3.4. Страница настроек сайта (контакты, FAQ, пакеты)
+	if ( function_exists( 'acf_add_options_page' ) ) {
+		acf_add_options_page( array(
+			'page_title' => 'Настройки сайта Shumoff',
+			'menu_title' => 'Настройки сайта',
+			'menu_slug'  => 'shumoff-settings',
+			'capability' => 'manage_options',
+			'redirect'   => false,
+			'icon_url'   => 'dashicons-admin-generic',
+			'position'   => 25,
+		) );
+
+		acf_add_local_field_group( array(
+			'key'      => 'group_site_contacts',
+			'title'    => 'Контакты компании',
+			'fields'   => array(
+				array(
+					'key'          => 'field_contact_phone',
+					'label'        => 'Телефон (как показывать)',
+					'name'         => 'contact_phone',
+					'type'         => 'text',
+					'placeholder'  => '+7 (495) 117-63-37',
+				),
+				array(
+					'key'          => 'field_contact_email',
+					'label'        => 'E-mail',
+					'name'         => 'contact_email',
+					'type'         => 'email',
+				),
+				array(
+					'key'          => 'field_contact_address',
+					'label'        => 'Адрес',
+					'name'         => 'contact_address',
+					'type'         => 'text',
+				),
+				array(
+					'key'          => 'field_contact_hours',
+					'label'        => 'Часы работы (текст)',
+					'name'         => 'contact_hours',
+					'type'         => 'text',
+					'placeholder'  => 'Пн–Сб: 9:00–20:00, Вс — выходной',
+				),
+				array(
+					'key'          => 'field_contact_whatsapp',
+					'label'        => 'Ссылка WhatsApp',
+					'name'         => 'contact_whatsapp',
+					'type'         => 'url',
+				),
+				array(
+					'key'          => 'field_contact_telegram',
+					'label'        => 'Ссылка Telegram',
+					'name'         => 'contact_telegram',
+					'type'         => 'url',
+				),
+			),
+			'location' => array(
+				array(
+					array(
+						'param'    => 'options_page',
+						'operator' => '==',
+						'value'    => 'shumoff-settings',
+					),
+				),
+			),
+		) );
+
+		acf_add_local_field_group( array(
+			'key'      => 'group_site_faq',
+			'title'    => 'FAQ на главной',
+			'fields'   => array(
+				array(
+					'key'          => 'field_site_faqs',
+					'label'        => 'Вопросы и ответы',
+					'name'         => 'site_faqs',
+					'type'         => 'repeater',
+					'layout'       => 'block',
+					'button_label' => 'Добавить вопрос',
+					'sub_fields'   => array(
+						array(
+							'key'   => 'field_faq_question',
+							'label' => 'Вопрос',
+							'name'  => 'question',
+							'type'  => 'text',
+						),
+						array(
+							'key'   => 'field_faq_answer',
+							'label' => 'Ответ',
+							'name'  => 'answer',
+							'type'  => 'textarea',
+							'rows'  => 3,
+						),
+					),
+				),
+			),
+			'location' => array(
+				array(
+					array(
+						'param'    => 'options_page',
+						'operator' => '==',
+						'value'    => 'shumoff-settings',
+					),
+				),
+			),
+		) );
+
+		acf_add_local_field_group( array(
+			'key'      => 'group_site_packages',
+			'title'    => 'Комплекты на главной',
+			'fields'   => array(
+				array(
+					'key'          => 'field_site_packages',
+					'label'        => 'Комплекты',
+					'name'         => 'site_packages',
+					'type'         => 'repeater',
+					'layout'       => 'block',
+					'button_label' => 'Добавить комплект',
+					'sub_fields'   => array(
+						array(
+							'key'   => 'field_package_name',
+							'label' => 'Название',
+							'name'  => 'name',
+							'type'  => 'text',
+						),
+						array(
+							'key'   => 'field_package_subtitle',
+							'label' => 'Подзаголовок',
+							'name'  => 'subtitle',
+							'type'  => 'text',
+						),
+						array(
+							'key'          => 'field_package_price',
+							'label'        => 'Цена (от), только число',
+							'name'         => 'price_from',
+							'type'         => 'number',
+							'append'       => '₽',
+						),
+						array(
+							'key'          => 'field_package_features',
+							'label'        => 'Состав (по строке на пункт)',
+							'name'         => 'features',
+							'type'         => 'textarea',
+							'rows'         => 6,
+						),
+						array(
+							'key'           => 'field_package_featured',
+							'label'         => 'Выделить как «Популярный»',
+							'name'          => 'featured',
+							'type'          => 'true_false',
+							'ui'            => true,
+						),
+					),
+				),
+			),
+			'location' => array(
+				array(
+					array(
+						'param'    => 'options_page',
+						'operator' => '==',
+						'value'    => 'shumoff-settings',
+					),
+				),
+			),
+		) );
+	}
+
+	// 3.5. Поля для Отзывов
 	acf_add_local_field_group( array(
 		'key'      => 'group_review_settings',
 		'title'    => 'Данные отзыва',

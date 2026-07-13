@@ -83,143 +83,80 @@ get_header();
 		?>
 
 		<!-- ============================================================
-		     PRICE TABLE — SIMPLE / MEDIUM / PREMIUM
+		     PRICE TABLE — реальный прайс по типу кузова (shumoff-core)
 		     ============================================================ -->
-		<section class="price-table-section section section--dark" aria-label="Цены по комплектам">
-			<div class="container">
-				<h2 class="section-title text-center"><?php _e( 'Стоимость шумоизоляции', 'shumoff' ); ?></h2>
-				<p class="section-subtitle text-center"><?php printf( __( 'Цены для автомобиля: %s', 'shumoff' ), esc_html( get_the_title() ) ); ?></p>
+		<?php
+		$shumoff_body        = $car_class ? $car_class : 'Седан-Хэтчбэк';
+		$shumoff_price_table = function_exists( 'shumoff_get_price_table' ) ? shumoff_get_price_table( $shumoff_body ) : null;
+		?>
 
-				<div class="price-table-grid">
+		<?php if ( $shumoff_price_table ) : ?>
+			<section class="price-table-section section section--dark" aria-label="Цены по комплектам">
+				<div class="container">
+					<h2 class="section-title text-center"><?php _e( 'Стоимость шумоизоляции', 'shumoff' ); ?></h2>
+					<p class="section-subtitle text-center">
+						<?php printf( __( '%1$s — цены для кузова «%2$s»', 'shumoff' ), esc_html( get_the_title() ), esc_html( $shumoff_body ) ); ?>
+					</p>
 
-					<!-- SIMPLE -->
-					<div class="price-table-card">
-						<h3 class="price-table-card__title"><?php _e( 'Simple', 'shumoff' ); ?></h3>
-						<p class="price-table-card__subtitle"><?php _e( 'Базовый комплект', 'shumoff' ); ?></p>
-						<table class="price-table">
-							<thead>
-								<tr>
-									<th scope="col"><?php _e( 'Зона обработки', 'shumoff' ); ?></th>
-									<th scope="col"><?php _e( 'Материал', 'shumoff' ); ?></th>
-									<th scope="col"><?php _e( 'Цена', 'shumoff' ); ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><?php _e( 'Дверные карты (2 шт.)', 'shumoff' ); ?></td>
-									<td>StP Agility</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.25, 0, ',', ' ' ) : '3 500'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><?php _e( 'Арки (2 шт.)', 'shumoff' ); ?></td>
-									<td>StP Agility</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.2, 0, ',', ' ' ) : '2 500'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><strong><?php _e( 'Итого', 'shumoff' ); ?></strong></td>
-									<td></td>
-									<td><strong><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.45, 0, ',', ' ' ) : '6 000'; ?> ₽</strong></td>
-								</tr>
-							</tbody>
-						</table>
-						<a href="#appointment" class="btn btn-outline"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
+					<div class="price-table-grid">
+						<?php
+						$shumoff_packages_meta = array(
+							'Simple'  => array( 'subtitle' => __( 'Базовый комплект', 'shumoff' ), 'featured' => false ),
+							'Medium'  => array( 'subtitle' => __( 'Оптимальный комплект', 'shumoff' ), 'featured' => true ),
+							'Premium' => array( 'subtitle' => __( 'Полный комплекс', 'shumoff' ), 'featured' => false ),
+						);
+						foreach ( $shumoff_packages_meta as $shumoff_package => $shumoff_meta ) :
+							?>
+							<div class="price-table-card<?php echo $shumoff_meta['featured'] ? ' price-table-card--featured' : ''; ?>">
+								<?php if ( $shumoff_meta['featured'] ) : ?>
+									<div class="price-table-card__badge"><?php _e( 'Популярный', 'shumoff' ); ?></div>
+								<?php endif; ?>
+								<h3 class="price-table-card__title"><?php echo esc_html( $shumoff_package ); ?></h3>
+								<p class="price-table-card__subtitle"><?php echo esc_html( $shumoff_meta['subtitle'] ); ?></p>
+								<table class="price-table">
+									<thead>
+										<tr>
+											<th scope="col"><?php _e( 'Зона обработки', 'shumoff' ); ?></th>
+											<th scope="col"><?php _e( 'Цена', 'shumoff' ); ?></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ( $shumoff_price_table as $shumoff_zone => $shumoff_prices ) : ?>
+											<?php if ( 'Полная комплектация' === $shumoff_zone || ! isset( $shumoff_prices[ $shumoff_package ]['total'] ) ) { continue; } ?>
+											<tr>
+												<td><?php echo esc_html( $shumoff_zone ); ?></td>
+												<td><?php echo esc_html( number_format( $shumoff_prices[ $shumoff_package ]['total'], 0, ',', ' ' ) ); ?> ₽</td>
+											</tr>
+										<?php endforeach; ?>
+										<?php if ( isset( $shumoff_price_table['Полная комплектация'][ $shumoff_package ]['total'] ) ) : ?>
+											<tr>
+												<td><strong><?php _e( 'Полная комплектация', 'shumoff' ); ?></strong></td>
+												<td><strong><?php echo esc_html( number_format( $shumoff_price_table['Полная комплектация'][ $shumoff_package ]['total'], 0, ',', ' ' ) ); ?> ₽</strong></td>
+											</tr>
+										<?php endif; ?>
+									</tbody>
+								</table>
+								<a href="#appointment" class="btn <?php echo $shumoff_meta['featured'] ? 'btn-primary' : 'btn-outline'; ?>"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
+							</div>
+						<?php endforeach; ?>
 					</div>
 
-					<!-- MEDIUM -->
-					<div class="price-table-card price-table-card--featured">
-						<div class="price-table-card__badge"><?php _e( 'Популярный', 'shumoff' ); ?></div>
-						<h3 class="price-table-card__title"><?php _e( 'Medium', 'shumoff' ); ?></h3>
-						<p class="price-table-card__subtitle"><?php _e( 'Оптимальный комплект', 'shumoff' ); ?></p>
-						<table class="price-table">
-							<thead>
-								<tr>
-									<th scope="col"><?php _e( 'Зона обработки', 'shumoff' ); ?></th>
-									<th scope="col"><?php _e( 'Материал', 'shumoff' ); ?></th>
-									<th scope="col"><?php _e( 'Цена', 'shumoff' ); ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><?php _e( 'Двери (4 шт.)', 'shumoff' ); ?></td>
-									<td>StP Agility + Sphinxx</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.28, 0, ',', ' ' ) : '7 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><?php _e( 'Пол (салон)', 'shumoff' ); ?></td>
-									<td>StP Magnum + Sphinxx</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.25, 0, ',', ' ' ) : '6 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><?php _e( 'Крыша', 'shumoff' ); ?></td>
-									<td>StP Sphinxx</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.15, 0, ',', ' ' ) : '4 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><?php _e( 'Арки (4 шт.)', 'shumoff' ); ?></td>
-									<td>StP Magnum</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.17, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><strong><?php _e( 'Итого', 'shumoff' ); ?></strong></td>
-									<td></td>
-									<td><strong><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.85, 0, ',', ' ' ) : '22 000'; ?> ₽</strong></td>
-								</tr>
-							</tbody>
-						</table>
-						<a href="#appointment" class="btn btn-primary"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
-					</div>
-
-					<!-- PREMIUM -->
-					<div class="price-table-card">
-						<h3 class="price-table-card__title"><?php _e( 'Premium', 'shumoff' ); ?></h3>
-						<p class="price-table-card__subtitle"><?php _e( 'Полный комплекс', 'shumoff' ); ?></p>
-						<table class="price-table">
-							<thead>
-								<tr>
-									<th scope="col"><?php _e( 'Зона обработки', 'shumoff' ); ?></th>
-									<th scope="col"><?php _e( 'Материал', 'shumoff' ); ?></th>
-									<th scope="col"><?php _e( 'Цена', 'shumoff' ); ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><?php _e( 'Двери (4 шт.)', 'shumoff' ); ?></td>
-									<td>StP Comfort + Sphinxx Gold</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.3, 0, ',', ' ' ) : '10 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><?php _e( 'Пол (салон + багажник)', 'shumoff' ); ?></td>
-									<td>StP SuperMagma + Sphinxx Gold</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.3, 0, ',', ' ' ) : '12 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><?php _e( 'Крыша', 'shumoff' ); ?></td>
-									<td>StP Sphinxx Gold</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.15, 0, ',', ' ' ) : '6 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><?php _e( 'Арки (4 шт.)', 'shumoff' ); ?></td>
-									<td>StP SuperMagma + Flutron</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.12, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><?php _e( 'Капот / багажник', 'shumoff' ); ?></td>
-									<td>StP Comfort + Sphinxx</td>
-									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.13, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
-								</tr>
-								<tr>
-									<td><strong><?php _e( 'Итого', 'shumoff' ); ?></strong></td>
-									<td></td>
-									<td><strong><?php echo ! empty( $full_price ) ? esc_html( $full_price ) : '50 000'; ?> ₽</strong></td>
-								</tr>
-							</tbody>
-						</table>
-						<a href="#appointment" class="btn btn-outline"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
-					</div>
-
+					<p class="price-table-note text-center">
+						<?php _e( 'Цены включают материалы и работу. Точная стоимость фиксируется после осмотра автомобиля и не меняется в процессе.', 'shumoff' ); ?>
+					</p>
 				</div>
-			</div>
-		</section>
+			</section>
+		<?php else : ?>
+			<section class="price-table-section section section--dark" aria-label="Цены по комплектам">
+				<div class="container text-center">
+					<h2 class="section-title"><?php _e( 'Стоимость шумоизоляции', 'shumoff' ); ?></h2>
+					<p class="section-subtitle">
+						<?php printf( __( 'Рассчитаем стоимость для вашего автомобиля по телефону %s или по заявке ниже.', 'shumoff' ), esc_html( shumoff_contact( 'contact_phone' ) ) ); ?>
+					</p>
+					<a href="#appointment" class="btn btn-primary"><?php _e( 'Рассчитать стоимость', 'shumoff' ); ?></a>
+				</div>
+			</section>
+		<?php endif; ?>
 
 		<!-- ============================================================
 		     RELATED SERVICES

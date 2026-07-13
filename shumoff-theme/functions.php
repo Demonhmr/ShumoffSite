@@ -164,6 +164,149 @@ function shumoff_field( $name, $post_id = false, $default = null ) {
 }
 
 /**
+ * Контакты компании: значения из «Настроек сайта» (ACF Options)
+ * с дефолтами в коде. Единственный источник правды для шаблонов.
+ *
+ * @param string $key Ключ контакта.
+ * @return string
+ */
+function shumoff_contact( $key ) {
+	$defaults = array(
+		'contact_phone'    => '+7 (495) 117-63-37',
+		'contact_email'    => 'info@shumoffpodolsk.com',
+		'contact_address'  => 'г. Подольск, Московская область',
+		'contact_hours'    => 'Пн–Сб: 9:00–20:00, Вс — выходной',
+		'contact_whatsapp' => 'https://wa.me/74951176337',
+		'contact_telegram' => 'https://t.me/shumoffpodolsk',
+	);
+
+	$value = shumoff_field( $key, 'option' );
+	if ( ! $value && isset( $defaults[ $key ] ) ) {
+		$value = $defaults[ $key ];
+	}
+	return (string) $value;
+}
+
+/**
+ * Телефон в формате для ссылки tel: (только цифры с плюсом).
+ *
+ * @return string
+ */
+function shumoff_contact_phone_link() {
+	$digits = preg_replace( '/[^0-9]/', '', shumoff_contact( 'contact_phone' ) );
+	return '+' . $digits;
+}
+
+/**
+ * FAQ: из «Настроек сайта» или дефолтный набор.
+ * Используется и для разметки на главной, и для JSON-LD FAQPage —
+ * контент задаётся в одном месте.
+ *
+ * @return array[] Массив из ['question' => ..., 'answer' => ...].
+ */
+function shumoff_get_faqs() {
+	$faqs = shumoff_field( 'site_faqs', 'option' );
+	if ( is_array( $faqs ) && ! empty( $faqs ) ) {
+		return $faqs;
+	}
+
+	$phone = shumoff_contact( 'contact_phone' );
+
+	return array(
+		array(
+			'question' => 'Сколько времени занимает шумоизоляция?',
+			'answer'   => 'Время зависит от выбранного комплекта. Simple — 1-2 дня, Medium — 2-3 дня, Premium — 4-5 дней. Мы всегда стараемся выполнить работу в кратчайшие сроки, не жертвуя качеством.',
+		),
+		array(
+			'question' => 'Какие материалы вы используете?',
+			'answer'   => 'Мы работаем с проверенными брендами: StP (СтандартПласт), SoftLine, Шумайз, Akston. Материалы сертифицированы и имеют гарантию производителя.',
+		),
+		array(
+			'question' => 'Даёте ли вы гарантию на работу?',
+			'answer'   => 'Да, мы предоставляем гарантию 12 месяцев на все выполненные работы. Если в течение гарантийного срока обнаружится дефект — устраним бесплатно.',
+		),
+		array(
+			'question' => 'Можно ли присутствовать при работе?',
+			'answer'   => 'Конечно! Вы можете присутствовать в нашей зоне ожидания с Wi-Fi и кофе. Также мы делаем подробный фотоотчёт на каждом этапе работ.',
+		),
+		array(
+			'question' => 'Как записаться на шумоизоляцию?',
+			'answer'   => 'Записаться можно по телефону ' . $phone . ', через WhatsApp, Telegram или заполнив форму на сайте. Мы перезвоним в течение 15 минут и подберём удобное время.',
+		),
+	);
+}
+
+/**
+ * Комплекты на главной: из «Настроек сайта» или дефолтный набор.
+ *
+ * @return array[] Массив из ['name','subtitle','price_from','features'(array),'featured'].
+ */
+function shumoff_get_packages() {
+	$packages = shumoff_field( 'site_packages', 'option' );
+	if ( is_array( $packages ) && ! empty( $packages ) ) {
+		return array_map(
+			function ( $p ) {
+				$features = isset( $p['features'] ) && is_string( $p['features'] )
+					? array_filter( array_map( 'trim', explode( "\n", $p['features'] ) ) )
+					: (array) ( $p['features'] ?? array() );
+				return array(
+					'name'       => $p['name'] ?? '',
+					'subtitle'   => $p['subtitle'] ?? '',
+					'price_from' => $p['price_from'] ?? '',
+					'features'   => $features,
+					'featured'   => ! empty( $p['featured'] ),
+				);
+			},
+			$packages
+		);
+	}
+
+	return array(
+		array(
+			'name'       => 'Simple',
+			'subtitle'   => 'Базовый комплект',
+			'price_from' => '15000',
+			'features'   => array(
+				'Шумоизоляция дверных карт (2 шт.)',
+				'Шумоизоляция арок (2 шт.)',
+				'Тонкий виброизолятор',
+				'Время: 1-2 дня',
+			),
+			'featured'   => false,
+		),
+		array(
+			'name'       => 'Medium',
+			'subtitle'   => 'Оптимальный комплект',
+			'price_from' => '35000',
+			'features'   => array(
+				'Шумоизоляция дверей (4 шт.)',
+				'Шумоизоляция пола (в салон)',
+				'Шумоизоляция крыши',
+				'Шумоизоляция арок (4 шт.)',
+				'Вибро + шумоизолятор',
+				'Время: 2-3 дня',
+			),
+			'featured'   => true,
+		),
+		array(
+			'name'       => 'Premium',
+			'subtitle'   => 'Полный комплекс',
+			'price_from' => '60000',
+			'features'   => array(
+				'Шумоизоляция всех дверей (4 шт.)',
+				'Шумоизоляция пола (в салон + багажник)',
+				'Шумоизоляция крыши',
+				'Шумоизоляция арок (4 шт.)',
+				'Шумоизоляция капота / багажника',
+				'Премиум-материалы',
+				'Время: 4-5 дней',
+			),
+			'featured'   => false,
+		),
+	);
+}
+
+/**
  * Fallback для меню: список основных разделов, пока меню не назначено.
  */
 function shumoff_menu_fallback() {

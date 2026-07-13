@@ -52,8 +52,8 @@
 		"name": "Shumoff Podolsk",
 		"description": "Профессиональная шумоизоляция автомобилей в Подольске и Москве",
 		"url": "<?php echo esc_url( home_url( '/' ) ); ?>",
-		"telephone": "+74951176337",
-		"email": "info@shumoffpodolsk.com",
+		"telephone": "<?php echo esc_js( shumoff_contact_phone_link() ); ?>",
+		"email": "<?php echo esc_js( shumoff_contact( 'contact_email' ) ); ?>",
 		"address": {
 			"@type": "PostalAddress",
 			"addressLocality": "Подольск",
@@ -74,62 +74,34 @@
 		"priceRange": "15000-60000 RUB",
 		"areaServed": ["Подольск", "Москва", "Московская область"],
 		"sameAs": [
-			"https://wa.me/74951176337",
-			"https://t.me/shumoffpodolsk"
+			"<?php echo esc_url( shumoff_contact( 'contact_whatsapp' ) ); ?>",
+			"<?php echo esc_url( shumoff_contact( 'contact_telegram' ) ); ?>"
 		]
 	}
 	</script>
-	<?php endif; ?>
 
-	<!-- ===== FAQ Schema (JSON-LD) on front page ===== -->
-	<?php if ( is_front_page() ) : ?>
+	<!-- ===== FAQ Schema (JSON-LD): тот же источник, что и разметка на главной ===== -->
 	<script type="application/ld+json">
-	{
-		"@context": "https://schema.org",
-		"@type": "FAQPage",
-		"mainEntity": [
-			{
-				"@type": "Question",
-				"name": "Сколько времени занимает шумоизоляция?",
-				"acceptedAnswer": {
-					"@type": "Answer",
-					"text": "Время зависит от выбранного комплекта. Simple — 1-2 дня, Medium — 2-3 дня, Premium — 4-5 дней. Мы всегда стараемся выполнить работу в кратчайшие сроки, не жертвуя качеством."
-				}
+	<?php
+	$shumoff_faq_schema = array(
+		'@context'   => 'https://schema.org',
+		'@type'      => 'FAQPage',
+		'mainEntity' => array_map(
+			function ( $faq ) {
+				return array(
+					'@type'          => 'Question',
+					'name'           => $faq['question'],
+					'acceptedAnswer' => array(
+						'@type' => 'Answer',
+						'text'  => $faq['answer'],
+					),
+				);
 			},
-			{
-				"@type": "Question",
-				"name": "Какие материалы вы используете?",
-				"acceptedAnswer": {
-					"@type": "Answer",
-					"text": "Мы работаем с проверенными брендами: StP (СтандартПласт), SoftLine, Шумайз, Akston. Материалы сертифицированы и имеют гарантию производителя."
-				}
-			},
-			{
-				"@type": "Question",
-				"name": "Даёте ли вы гарантию на работу?",
-				"acceptedAnswer": {
-					"@type": "Answer",
-					"text": "Да, мы предоставляем гарантию 12 месяцев на все выполненные работы. Если в течение гарантийного срока обнаружится дефект — устраним бесплатно."
-				}
-			},
-			{
-				"@type": "Question",
-				"name": "Можно ли присутствовать при работе?",
-				"acceptedAnswer": {
-					"@type": "Answer",
-					"text": "Конечно! Вы можете присутствовать в нашей зоне ожидания с Wi-Fi и кофе. Также мы делаем подробный фотоотчёт на каждом этапе работ."
-				}
-			},
-			{
-				"@type": "Question",
-				"name": "Как записаться на шумоизоляцию?",
-				"acceptedAnswer": {
-					"@type": "Answer",
-					"text": "Записаться можно по телефону +7 (495) 117-63-37, через WhatsApp, Telegram или заполнив форму на сайте. Мы перезвоним в течение 15 минут и подберём удобное время."
-				}
-			}
-		]
-	}
+			shumoff_get_faqs()
+		),
+	);
+	echo wp_json_encode( $shumoff_faq_schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+	?>
 	</script>
 	<?php endif; ?>
 
@@ -178,9 +150,9 @@
 			<!-- Header Actions -->
 			<div class="site-header__actions">
 				<!-- Phone -->
-				<a href="tel:+74951176337" class="site-header__phone" title="Позвонить">
+				<a href="tel:<?php echo esc_attr( shumoff_contact_phone_link() ); ?>" class="site-header__phone" title="Позвонить">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="var(--color-primary)"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z"/></svg>
-					<span>+7 (495) 117-63-37</span>
+					<span><?php echo esc_html( shumoff_contact( 'contact_phone' ) ); ?></span>
 				</a>
 
 				<!-- CTA Button -->

@@ -98,7 +98,7 @@ get_header();
 	</section>
 
 	<!-- ============================================================
-	     PACKAGES SECTION — SIMPLE / MEDIUM / PREMIUM
+	     PACKAGES SECTION — редактируются в «Настройках сайта»
 	     ============================================================ -->
 	<section class="packages-section section section--dark" id="packages" aria-label="Комплекты шумоизоляции">
 		<div class="container">
@@ -106,198 +106,157 @@ get_header();
 			<p class="section-subtitle text-center"><?php _e( 'Выберите подходящий уровень шумоизоляции для вашего автомобиля', 'shumoff' ); ?></p>
 
 			<div class="packages-grid">
-
-				<!-- SIMPLE -->
-				<article class="package-card">
-					<div class="package-card__header">
-						<h3 class="package-card__title"><?php _e( 'Simple', 'shumoff' ); ?></h3>
-						<p class="package-card__subtitle"><?php _e( 'Базовый комплект', 'shumoff' ); ?></p>
-					</div>
-					<div class="package-card__body">
-						<ul class="package-card__list">
-							<li><?php _e( 'Шумоизоляция дверных карт (2 шт.)', 'shumoff' ); ?></li>
-							<li><?php _e( 'Шумоизоляция арок (2 шт.)', 'shumoff' ); ?></li>
-							<li><?php _e( 'Тонкий виброизолятор', 'shumoff' ); ?></li>
-							<li><?php _e( 'Время: 1-2 дня', 'shumoff' ); ?></li>
-						</ul>
-						<p class="package-card__price">
-							<?php printf( __( 'от %s ₽', 'shumoff' ), '15 000' ); ?>
-						</p>
-						<a href="#appointment" class="btn btn-outline"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
-					</div>
-				</article>
-
-				<!-- MEDIUM -->
-				<article class="package-card package-card--featured">
-					<div class="package-card__badge"><?php _e( 'Популярный', 'shumoff' ); ?></div>
-					<div class="package-card__header">
-						<h3 class="package-card__title"><?php _e( 'Medium', 'shumoff' ); ?></h3>
-						<p class="package-card__subtitle"><?php _e( 'Оптимальный комплект', 'shumoff' ); ?></p>
-					</div>
-					<div class="package-card__body">
-						<ul class="package-card__list">
-							<li><?php _e( 'Шумоизоляция дверей (4 шт.)', 'shumoff' ); ?></li>
-							<li><?php _e( 'Шумоизоляция пола (в салон)', 'shumoff' ); ?></li>
-							<li><?php _e( 'Шумоизоляция крыши', 'shumoff' ); ?></li>
-							<li><?php _e( 'Шумоизоляция арок (4 шт.)', 'shumoff' ); ?></li>
-							<li><?php _e( 'Вибро + шумоизолятор', 'shumoff' ); ?></li>
-							<li><?php _e( 'Время: 2-3 дня', 'shumoff' ); ?></li>
-						</ul>
-						<p class="package-card__price">
-							<?php printf( __( 'от %s ₽', 'shumoff' ), '35 000' ); ?>
-						</p>
-						<a href="#appointment" class="btn btn-primary"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
-					</div>
-				</article>
-
-				<!-- PREMIUM -->
-				<article class="package-card">
-					<div class="package-card__header">
-						<h3 class="package-card__title"><?php _e( 'Premium', 'shumoff' ); ?></h3>
-						<p class="package-card__subtitle"><?php _e( 'Полный комплекс', 'shumoff' ); ?></p>
-					</div>
-					<div class="package-card__body">
-						<ul class="package-card__list">
-							<li><?php _e( 'Шумоизоляция всех дверей (4 шт.)', 'shumoff' ); ?></li>
-							<li><?php _e( 'Шумоизоляция пола (в салон + багажник)', 'shumoff' ); ?></li>
-							<li><?php _e( 'Шумоизоляция крыши', 'shumoff' ); ?></li>
-							<li><?php _e( 'Шумоизоляция арок (4 шт.)', 'shumoff' ); ?></li>
-							<li><?php _e( 'Шумоизоляция капота / багажника', 'shumoff' ); ?></li>
-							<li><?php _e( 'Премиум-материалы', 'shumoff' ); ?></li>
-							<li><?php _e( 'Время: 4-5 дней', 'shumoff' ); ?></li>
-						</ul>
-						<p class="package-card__price">
-							<?php printf( __( 'от %s ₽', 'shumoff' ), '60 000' ); ?>
-						</p>
-						<a href="#appointment" class="btn btn-outline"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
-					</div>
-				</article>
-
+				<?php foreach ( shumoff_get_packages() as $shumoff_package ) : ?>
+					<article class="package-card<?php echo $shumoff_package['featured'] ? ' package-card--featured' : ''; ?>">
+						<?php if ( $shumoff_package['featured'] ) : ?>
+							<div class="package-card__badge"><?php _e( 'Популярный', 'shumoff' ); ?></div>
+						<?php endif; ?>
+						<div class="package-card__header">
+							<h3 class="package-card__title"><?php echo esc_html( $shumoff_package['name'] ); ?></h3>
+							<p class="package-card__subtitle"><?php echo esc_html( $shumoff_package['subtitle'] ); ?></p>
+						</div>
+						<div class="package-card__body">
+							<ul class="package-card__list">
+								<?php foreach ( $shumoff_package['features'] as $shumoff_feature ) : ?>
+									<li><?php echo esc_html( $shumoff_feature ); ?></li>
+								<?php endforeach; ?>
+							</ul>
+							<p class="package-card__price">
+								<?php printf( __( 'от %s ₽', 'shumoff' ), esc_html( number_format( (int) $shumoff_package['price_from'], 0, ',', ' ' ) ) ); ?>
+							</p>
+							<a href="#appointment" class="btn <?php echo $shumoff_package['featured'] ? 'btn-primary' : 'btn-outline'; ?>"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
+						</div>
+					</article>
+				<?php endforeach; ?>
 			</div>
 		</div>
 	</section>
 
 	<!-- ============================================================
-	     CASES SECTION — 4 PLACEHOLDER CARDS
+	     CASES SECTION — последние кейсы из CPT
 	     ============================================================ -->
 	<section class="cases-section section" aria-label="Наши кейсы">
 		<div class="container">
 			<h2 class="section-title text-center"><?php _e( 'Наши кейсы', 'shumoff' ); ?></h2>
 			<p class="section-subtitle text-center"><?php _e( 'Примеры выполненных работ по шумоизоляции', 'shumoff' ); ?></p>
 
-			<div class="cases-grid">
+			<?php
+			$shumoff_cases = new WP_Query(
+				array(
+					'post_type'           => 'cases',
+					'posts_per_page'      => 4,
+					'ignore_sticky_posts' => true,
+				)
+			);
+			?>
 
-				<article class="case-card">
-					<div class="case-card__image" style="background:var(--color-bg-alt);height:200px;display:flex;align-items:center;justify-content:center;">
-						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-					</div>
-					<div class="case-card__body">
-						<h3 class="case-card__title"><a href="#"><?php _e( 'Toyota Camry — полная шумоизоляция', 'shumoff' ); ?></a></h3>
-						<p class="case-card__excerpt"><?php _e( 'Полная шумоизоляция кузова: двери, пол, крыша, арки, капот. Использование материалов StP Magnum.', 'shumoff' ); ?></p>
-						<span class="case-card__meta"><?php _e( 'от 65 000 ₽', 'shumoff' ); ?></span>
-					</div>
-				</article>
+			<?php if ( $shumoff_cases->have_posts() ) : ?>
+				<div class="cases-grid">
+					<?php
+					while ( $shumoff_cases->have_posts() ) :
+						$shumoff_cases->the_post();
+						$shumoff_case_price = shumoff_field( 'case_price' );
+						?>
+						<article class="case-card hover-lift">
+							<div class="case-card__image">
+								<a href="<?php the_permalink(); ?>">
+									<?php if ( has_post_thumbnail() ) : ?>
+										<?php the_post_thumbnail( 'shumoff-thumbnail' ); ?>
+									<?php else : ?>
+										<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+									<?php endif; ?>
+								</a>
+							</div>
+							<div class="case-card__body">
+								<h3 class="case-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+								<p class="case-card__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 18 ) ); ?></p>
+								<?php if ( $shumoff_case_price ) : ?>
+									<span class="case-card__meta"><?php printf( __( 'от %s ₽', 'shumoff' ), esc_html( $shumoff_case_price ) ); ?></span>
+								<?php endif; ?>
+							</div>
+						</article>
+					<?php endwhile; ?>
+					<?php wp_reset_postdata(); ?>
+				</div>
 
-				<article class="case-card">
-					<div class="case-card__image" style="background:var(--color-bg-alt);height:200px;display:flex;align-items:center;justify-content:center;">
-						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-					</div>
-					<div class="case-card__body">
-						<h3 class="case-card__title"><a href="#"><?php _e( 'Kia Rio — шумоизоляция дверей', 'shumoff' ); ?></a></h3>
-						<p class="case-card__excerpt"><?php _e( 'Шумоизоляция всех дверей с улучшением звучания аудиосистемы. Материалы StP Accent и Sphinxx.', 'shumoff' ); ?></p>
-						<span class="case-card__meta"><?php _e( 'от 18 000 ₽', 'shumoff' ); ?></span>
-					</div>
-				</article>
-
-				<article class="case-card">
-					<div class="case-card__image" style="background:var(--color-bg-alt);height:200px;display:flex;align-items:center;justify-content:center;">
-						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-					</div>
-					<div class="case-card__body">
-						<h3 class="case-card__title"><a href="#"><?php _e( 'BMW X5 — Medium комплект', 'shumoff' ); ?></a></h3>
-						<p class="case-card__excerpt"><?php _e( 'Средний комплекс шумоизоляции: пол, двери, арки, крыша. Результат: снижение шума на 8 дБ.', 'shumoff' ); ?></p>
-						<span class="case-card__meta"><?php _e( 'от 45 000 ₽', 'shumoff' ); ?></span>
-					</div>
-				</article>
-
-				<article class="case-card">
-					<div class="case-card__image" style="background:var(--color-bg-alt);height:200px;display:flex;align-items:center;justify-content:center;">
-						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-					</div>
-					<div class="case-card__body">
-						<h3 class="case-card__title"><a href="#"><?php _e( 'Volkswagen Tiguan — шумоизоляция пола', 'shumoff' ); ?></a></h3>
-						<p class="case-card__excerpt"><?php _e( 'Шумоизоляция пола и багажника Premium-материалами. Значительное снижение шума дороги и выхлопа.', 'shumoff' ); ?></p>
-						<span class="case-card__meta"><?php _e( 'от 30 000 ₽', 'shumoff' ); ?></span>
-					</div>
-				</article>
-
-			</div>
-
-			<div class="text-center" style="margin-top:40px;">
-				<a href="<?php echo esc_url( get_post_type_archive_link( 'cases' ) ); ?>" class="btn btn-outline"><?php _e( 'Все кейсы', 'shumoff' ); ?></a>
-			</div>
+				<div class="text-center" style="margin-top:40px;">
+					<a href="<?php echo esc_url( get_post_type_archive_link( 'cases' ) ); ?>" class="btn btn-outline"><?php _e( 'Все кейсы', 'shumoff' ); ?></a>
+				</div>
+			<?php else : ?>
+				<p class="text-center"><?php _e( 'Кейсы скоро появятся — мы готовим фотоотчёты выполненных работ.', 'shumoff' ); ?></p>
+			<?php endif; ?>
 		</div>
 	</section>
 
 	<!-- ============================================================
-	     FAQ SECTION — 5 Q&A
+	     REVIEWS SECTION — отзывы из CPT (скрыта, пока отзывов нет)
+	     ============================================================ -->
+	<?php
+	$shumoff_reviews = new WP_Query(
+		array(
+			'post_type'           => 'reviews',
+			'posts_per_page'      => 3,
+			'ignore_sticky_posts' => true,
+		)
+	);
+	?>
+	<?php if ( $shumoff_reviews->have_posts() ) : ?>
+		<section class="reviews-section section section--alt" aria-label="Отзывы клиентов">
+			<div class="container">
+				<h2 class="section-title text-center"><?php _e( 'Отзывы клиентов', 'shumoff' ); ?></h2>
+				<p class="section-subtitle text-center"><?php _e( 'Что говорят владельцы автомобилей после шумоизоляции', 'shumoff' ); ?></p>
+
+				<div class="reviews-grid">
+					<?php
+					$shumoff_review_sources = array(
+						'yandex' => __( 'Яндекс Карты', 'shumoff' ),
+						'2gis'   => __( '2ГИС', 'shumoff' ),
+						'video'  => __( 'Видеоотзыв', 'shumoff' ),
+						'direct' => __( 'Клиент сервиса', 'shumoff' ),
+					);
+					while ( $shumoff_reviews->have_posts() ) :
+						$shumoff_reviews->the_post();
+						$shumoff_rating = min( 5, max( 1, (int) shumoff_field( 'review_rating', false, 5 ) ) );
+						$shumoff_source = (string) shumoff_field( 'review_source' );
+						?>
+						<article class="review-card">
+							<div class="review-card__stars" aria-label="<?php echo esc_attr( sprintf( __( 'Оценка %d из 5', 'shumoff' ), $shumoff_rating ) ); ?>">
+								<?php echo esc_html( str_repeat( '★', $shumoff_rating ) . str_repeat( '☆', 5 - $shumoff_rating ) ); ?>
+							</div>
+							<div class="review-card__text"><?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_content() ), 40 ) ); ?></div>
+							<div class="review-card__author">
+								<span class="review-card__name"><?php the_title(); ?></span>
+								<?php if ( isset( $shumoff_review_sources[ $shumoff_source ] ) ) : ?>
+									<span class="review-card__source"><?php echo esc_html( $shumoff_review_sources[ $shumoff_source ] ); ?></span>
+								<?php endif; ?>
+							</div>
+						</article>
+					<?php endwhile; ?>
+					<?php wp_reset_postdata(); ?>
+				</div>
+			</div>
+		</section>
+	<?php endif; ?>
+
+	<!-- ============================================================
+	     FAQ SECTION — источник: shumoff_get_faqs() (общий с JSON-LD)
 	     ============================================================ -->
 	<section class="faq-section section section--dark" aria-label="Часто задаваемые вопросы">
 		<div class="container">
 			<h2 class="section-title text-center"><?php _e( 'Часто задаваемые вопросы', 'shumoff' ); ?></h2>
 
 			<div class="faq-list">
-
-				<details class="faq-item">
-					<summary class="faq-item__question">
-						<span><?php _e( 'Сколько времени занимает шумоизоляция?', 'shumoff' ); ?></span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-					</summary>
-					<div class="faq-item__answer">
-						<?php _e( 'Время зависит от выбранного комплекта. Simple — 1-2 дня, Medium — 2-3 дня, Premium — 4-5 дней. Мы всегда стараемся выполнить работу в кратчайшие сроки, не жертвуя качеством.', 'shumoff' ); ?>
-					</div>
-				</details>
-
-				<details class="faq-item">
-					<summary class="faq-item__question">
-						<span><?php _e( 'Какие материалы вы используете?', 'shumoff' ); ?></span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-					</summary>
-					<div class="faq-item__answer">
-						<?php _e( 'Мы работаем с проверенными брендами: StP (СтандартПласт), SoftLine, Шумайз, Akston. Материалы сертифицированы и имеют гарантию производителя.', 'shumoff' ); ?>
-					</div>
-				</details>
-
-				<details class="faq-item">
-					<summary class="faq-item__question">
-						<span><?php _e( 'Даёте ли вы гарантию на работу?', 'shumoff' ); ?></span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-					</summary>
-					<div class="faq-item__answer">
-						<?php _e( 'Да, мы предоставляем гарантию 12 месяцев на все выполненные работы. Если в течение гарантийного срока обнаружится дефект — устраним бесплатно.', 'shumoff' ); ?>
-					</div>
-				</details>
-
-				<details class="faq-item">
-					<summary class="faq-item__question">
-						<span><?php _e( 'Можно ли присутствовать при работе?', 'shumoff' ); ?></span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-					</summary>
-					<div class="faq-item__answer">
-						<?php _e( 'Конечно! Вы можете присутствовать в нашей зоне ожидания с Wi-Fi и кофе. Также мы делаем подробный фотоотчёт на каждом этапе работ.', 'shumoff' ); ?>
-					</div>
-				</details>
-
-				<details class="faq-item">
-					<summary class="faq-item__question">
-						<span><?php _e( 'Как записаться на шумоизоляцию?', 'shumoff' ); ?></span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-					</summary>
-					<div class="faq-item__answer">
-						<?php _e( 'Записаться можно по телефону +7 (495) 117-63-37, через WhatsApp, Telegram или заполнив форму на сайте. Мы перезвоним в течение 15 минут и подберём удобное время.', 'shumoff' ); ?>
-					</div>
-				</details>
-
+				<?php foreach ( shumoff_get_faqs() as $shumoff_faq ) : ?>
+					<details class="faq-item">
+						<summary class="faq-item__question">
+							<span><?php echo esc_html( $shumoff_faq['question'] ); ?></span>
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+						</summary>
+						<div class="faq-item__answer">
+							<?php echo esc_html( $shumoff_faq['answer'] ); ?>
+						</div>
+					</details>
+				<?php endforeach; ?>
 			</div>
 		</div>
 	</section>
