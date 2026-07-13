@@ -23,3 +23,10 @@ error_log
 *.swo
 *.bak
 *~
+
+# ===== Business documents (never commit) =====
+*.xlsx
+*.xls
+*.pdf
+*.docx
+business-docs/
