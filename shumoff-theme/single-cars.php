@@ -47,8 +47,8 @@ get_header();
 
 					<?php
 					// ACF Custom Fields
-					$car_class  = function_exists( 'get_field' ) ? get_field( 'car_class' ) : null;
-					$full_price = function_exists( 'get_field' ) ? get_field( 'car_full_price' ) : null;
+					$car_class  = shumoff_field( 'car_class' );
+					$full_price = shumoff_field( 'car_full_price' );
 					?>
 
 					<?php if ( $car_class || $full_price ) : ?>
@@ -108,17 +108,17 @@ get_header();
 								<tr>
 									<td><?php _e( 'Дверные карты (2 шт.)', 'shumoff' ); ?></td>
 									<td>StP Agility</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.25, 0, ',', ' ' ) : '3 500'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.25, 0, ',', ' ' ) : '3 500'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><?php _e( 'Арки (2 шт.)', 'shumoff' ); ?></td>
 									<td>StP Agility</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.2, 0, ',', ' ' ) : '2 500'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.2, 0, ',', ' ' ) : '2 500'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><strong><?php _e( 'Итого', 'shumoff' ); ?></strong></td>
 									<td></td>
-									<td><strong><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.45, 0, ',', ' ' ) : '6 000'; ?> ₽</strong></td>
+									<td><strong><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.45, 0, ',', ' ' ) : '6 000'; ?> ₽</strong></td>
 								</tr>
 							</tbody>
 						</table>
@@ -142,27 +142,27 @@ get_header();
 								<tr>
 									<td><?php _e( 'Двери (4 шт.)', 'shumoff' ); ?></td>
 									<td>StP Agility + Sphinxx</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.28, 0, ',', ' ' ) : '7 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.28, 0, ',', ' ' ) : '7 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><?php _e( 'Пол (салон)', 'shumoff' ); ?></td>
 									<td>StP Magnum + Sphinxx</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.25, 0, ',', ' ' ) : '6 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.25, 0, ',', ' ' ) : '6 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><?php _e( 'Крыша', 'shumoff' ); ?></td>
 									<td>StP Sphinxx</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.15, 0, ',', ' ' ) : '4 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.15, 0, ',', ' ' ) : '4 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><?php _e( 'Арки (4 шт.)', 'shumoff' ); ?></td>
 									<td>StP Magnum</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.17, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.17, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><strong><?php _e( 'Итого', 'shumoff' ); ?></strong></td>
 									<td></td>
-									<td><strong><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.85, 0, ',', ' ' ) : '22 000'; ?> ₽</strong></td>
+									<td><strong><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.85, 0, ',', ' ' ) : '22 000'; ?> ₽</strong></td>
 								</tr>
 							</tbody>
 						</table>
@@ -185,32 +185,32 @@ get_header();
 								<tr>
 									<td><?php _e( 'Двери (4 шт.)', 'shumoff' ); ?></td>
 									<td>StP Comfort + Sphinxx Gold</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.3, 0, ',', ' ' ) : '10 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.3, 0, ',', ' ' ) : '10 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><?php _e( 'Пол (салон + багажник)', 'shumoff' ); ?></td>
 									<td>StP SuperMagma + Sphinxx Gold</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.3, 0, ',', ' ' ) : '12 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.3, 0, ',', ' ' ) : '12 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><?php _e( 'Крыша', 'shumoff' ); ?></td>
 									<td>StP Sphinxx Gold</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.15, 0, ',', ' ' ) : '6 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.15, 0, ',', ' ' ) : '6 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><?php _e( 'Арки (4 шт.)', 'shumoff' ); ?></td>
 									<td>StP SuperMagma + Flutron</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.12, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.12, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><?php _e( 'Капот / багажник', 'shumoff' ); ?></td>
 									<td>StP Comfort + Sphinxx</td>
-									<td><?php echo isset( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.13, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
+									<td><?php echo ! empty( $full_price ) ? number_format( (int) preg_replace( '/\D/', '', $full_price ) * 0.13, 0, ',', ' ' ) : '5 000'; ?> ₽</td>
 								</tr>
 								<tr>
 									<td><strong><?php _e( 'Итого', 'shumoff' ); ?></strong></td>
 									<td></td>
-									<td><strong><?php echo isset( $full_price ) ? esc_html( $full_price ) : '50 000'; ?> ₽</strong></td>
+									<td><strong><?php echo ! empty( $full_price ) ? esc_html( $full_price ) : '50 000'; ?> ₽</strong></td>
 								</tr>
 							</tbody>
 						</table>
@@ -225,18 +225,17 @@ get_header();
 		     RELATED SERVICES
 		     ============================================================ -->
 		<?php
-		$brand_terms = get_the_terms( get_the_ID(), 'car_brand' );
-		if ( $brand_terms && ! is_wp_error( $brand_terms ) ) :
-			$related_service_args = array(
-				'post_type'      => 'services',
-				'posts_per_page' => 4,
-				'orderby'        => 'menu_order',
-				'order'          => 'ASC',
+		$related_services = new WP_Query(
+			array(
+				'post_type'           => 'services',
+				'posts_per_page'      => 4,
+				'orderby'             => 'menu_order',
+				'order'               => 'ASC',
 				'ignore_sticky_posts' => true,
-			);
-			$related_services = new WP_Query( $related_service_args );
+			)
+		);
 
-			if ( $related_services->have_posts() ) :
+		if ( $related_services->have_posts() ) :
 				?>
 				<section class="related-services section" aria-label="Связанные услуги">
 					<div class="container">
@@ -246,14 +245,14 @@ get_header();
 						<div class="services-grid">
 							<?php
 							while ( $related_services->have_posts() ) : $related_services->the_post();
-								$service_price = function_exists( 'get_field' ) ? get_field( 'service_price_from' ) : null;
-								$service_duration = function_exists( 'get_field' ) ? get_field( 'service_duration' ) : null;
+								$service_price = shumoff_field( 'service_price_from' );
+								$service_duration = shumoff_field( 'service_duration' );
 								?>
 								<article class="service-card">
 									<?php if ( has_post_thumbnail() ) : ?>
 										<div class="service-card__image">
 											<a href="<?php the_permalink(); ?>">
-												<?php the_post_thumbnail( 'shumoff-thumb-medium' ); ?>
+												<?php the_post_thumbnail( 'shumoff-thumbnail' ); ?>
 											</a>
 										</div>
 									<?php endif; ?>
@@ -282,68 +281,14 @@ get_header();
 					</div>
 				</section>
 				<?php
-			endif;
 		endif;
 		?>
 
-		<!-- ============================================================
-		     APPOINTMENT FORM
-		     ============================================================ -->
-		<section class="appointment-section section" id="appointment" aria-label="Форма заявки">
-			<div class="container">
-				<div class="appointment-section__inner">
-					<div class="appointment-section__content">
-						<h2 class="appointment-section__title"><?php _e( 'Рассчитайте стоимость шумоизоляции', 'shumoff' ); ?></h2>
-						<p class="appointment-section__text"><?php printf( __( 'Запишитесь на шумоизоляцию для "%s" — наш менеджер перезвонит в течение 15 минут.', 'shumoff' ), esc_html( get_the_title() ) ); ?></p>
-						<ul class="appointment-section__benefits">
-							<li><?php _e( 'Бесплатная консультация', 'shumoff' ); ?></li>
-							<li><?php _e( 'Индивидуальный расчёт', 'shumoff' ); ?></li>
-							<li><?php _e( 'Скидка 5% при записи онлайн', 'shumoff' ); ?></li>
-						</ul>
-					</div>
-
-					<div class="appointment-section__form">
-						<form class="appointment-form" method="post" action="<?php echo esc_url( home_url( '/' ) ); ?>" novalidate>
-							<div class="form-group">
-								<label for="appt-name"><?php _e( 'Ваше имя', 'shumoff' ); ?> <span class="required">*</span></label>
-								<input type="text" id="appt-name" name="appt_name" placeholder="<?php _e( 'Иван Иванов', 'shumoff' ); ?>" required>
-							</div>
-
-							<div class="form-group">
-								<label for="appt-phone"><?php _e( 'Телефон', 'shumoff' ); ?> <span class="required">*</span></label>
-								<input type="tel" id="appt-phone" name="appt_phone" placeholder="+7 (___) ___-__-__" required>
-							</div>
-
-							<div class="form-group">
-								<label for="appt-car"><?php _e( 'Марка автомобиля', 'shumoff' ); ?></label>
-								<select id="appt-car" name="appt_car">
-									<option value=""><?php _e( 'Выберите марку', 'shumoff' ); ?></option>
-									<option value="lada">LADA</option>
-									<option value="kia">KIA</option>
-									<option value="hyundai">Hyundai</option>
-									<option value="toyota">Toyota</option>
-									<option value="bmw">BMW</option>
-									<option value="mercedes">Mercedes-Benz</option>
-									<option value="volkswagen">Volkswagen</option>
-									<option value="skoda">Škoda</option>
-									<option value="nissan">Nissan</option>
-									<option value="renault">Renault</option>
-									<option value="other"><?php _e( 'Другая', 'shumoff' ); ?></option>
-								</select>
-							</div>
-
-							<div class="form-group">
-								<button type="submit" class="btn btn-primary btn--lg" style="width:100%;"><?php _e( 'Рассчитать', 'shumoff' ); ?></button>
-							</div>
-
-							<p class="appointment-form__privacy">
-								<?php _e( 'Нажимая кнопку, вы соглашаетесь с', 'shumoff' ); ?> <a href="<?php echo esc_url( home_url( '/privacy-policy' ) ); ?>"><?php _e( 'политикой конфиденциальности', 'shumoff' ); ?></a>.
-							</p>
-						</form>
-					</div>
-				</div>
-			</div>
-		</section>
+		<?php
+		get_template_part( 'template-parts/appointment-form', null, array(
+			'text' => sprintf( __( 'Запишитесь на шумоизоляцию для «%s» — наш менеджер перезвонит в течение 15 минут.', 'shumoff' ), get_the_title() ),
+		) );
+		?>
 
 	</div>
 </main>

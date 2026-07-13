@@ -1,18 +1,22 @@
 /* ============================================
    Shumoff Theme — Main JavaScript
-   Interactions: header scroll, mobile menu,
-   FAQ accordion, before/after slider,
-   smooth scroll, form validation.
+   Взаимодействия: скролл-эффект шапки, мобильное
+   меню, FAQ (одиночное раскрытие), слайдер
+   «до/после», плавный скролл, валидация формы.
+
+   Селекторы соответствуют разметке темы:
+   .site-header, .burger-menu, #main-navigation,
+   .mobile-menu-overlay, .faq-item (details),
+   form[data-validate].
    ============================================ */
 
 (function () {
   'use strict';
 
-  // ─── DOM Ready ───────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
     initHeaderScroll();
     initMobileMenu();
-    initFaqAccordion();
+    initFaqSingleOpen();
     initBaSlider();
     initSmoothScroll();
     initFormValidation();
@@ -20,21 +24,16 @@
 
   // ─── Header Scroll Effect ────────────────────
   function initHeaderScroll() {
-    var header = document.querySelector('.header');
+    var header = document.querySelector('.site-header');
     if (!header) return;
 
     var scrollThreshold = 50;
+    var ticking = false;
 
     function onScroll() {
-      if (window.scrollY > scrollThreshold) {
-        header.classList.add('is-scrolled');
-      } else {
-        header.classList.remove('is-scrolled');
-      }
+      header.classList.toggle('is-scrolled', window.scrollY > scrollThreshold);
     }
 
-    // Throttle with rAF
-    var ticking = false;
     window.addEventListener('scroll', function () {
       if (!ticking) {
         window.requestAnimationFrame(function () {
@@ -45,62 +44,72 @@
       }
     });
 
-    // Initial check
     onScroll();
   }
 
   // ─── Mobile Menu Toggle ──────────────────────
   function initMobileMenu() {
-    var burger = document.querySelector('.header__burger');
-    var menu = document.querySelector('.mobile-menu');
-    if (!burger || !menu) return;
+    var burger = document.getElementById('burger-menu');
+    var nav = document.getElementById('main-navigation');
+    var overlay = document.getElementById('mobile-menu-overlay');
+    if (!burger || !nav) return;
+
+    function setMenu(open) {
+      nav.classList.toggle('is-open', open);
+      burger.classList.toggle('active', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.classList.toggle('menu-open', open);
+      if (overlay) {
+        overlay.classList.toggle('is-active', open);
+        overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+      }
+    }
 
     burger.addEventListener('click', function () {
-      menu.classList.toggle('is-open');
-      burger.classList.toggle('is-active');
+      setMenu(!nav.classList.contains('is-open'));
     });
 
-    // Close menu on link click
-    var links = menu.querySelectorAll('.mobile-menu__link');
-    links.forEach(function (link) {
-      link.addEventListener('click', function () {
-        menu.classList.remove('is-open');
-        burger.classList.remove('is-active');
+    if (overlay) {
+      overlay.addEventListener('click', function () {
+        setMenu(false);
       });
+    }
+
+    nav.addEventListener('click', function (e) {
+      if (e.target.closest('a')) {
+        setMenu(false);
+      }
     });
 
-    // Close on Escape
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && menu.classList.contains('is-open')) {
-        menu.classList.remove('is-open');
-        burger.classList.remove('is-active');
+      if (e.key === 'Escape' && nav.classList.contains('is-open')) {
+        setMenu(false);
+      }
+    });
+
+    // Сброс состояния при переходе на десктопную ширину
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 992 && nav.classList.contains('is-open')) {
+        setMenu(false);
       }
     });
   }
 
-  // ─── FAQ Accordion ───────────────────────────
-  function initFaqAccordion() {
-    var items = document.querySelectorAll('.faq-item');
+  // ─── FAQ: одновременно открыт один вопрос ────
+  // Разметка на нативных <details> — работает и без JS,
+  // скрипт лишь закрывает остальные при открытии нового.
+  function initFaqSingleOpen() {
+    var items = document.querySelectorAll('details.faq-item');
     if (!items.length) return;
 
     items.forEach(function (item) {
-      var title = item.querySelector('.faq-item__title');
-      if (!title) return;
-
-      title.addEventListener('click', function () {
-        var isActive = item.classList.contains('is-active');
-
-        // Close all items (uncomment for single-open behavior)
-        // items.forEach(function (other) {
-        //   other.classList.remove('is-active');
-        // });
-
-        // Toggle current
-        if (isActive) {
-          item.classList.remove('is-active');
-        } else {
-          item.classList.add('is-active');
-        }
+      item.addEventListener('toggle', function () {
+        if (!item.open) return;
+        items.forEach(function (other) {
+          if (other !== item) {
+            other.open = false;
+          }
+        });
       });
     });
   }
@@ -124,35 +133,24 @@
         afterImage.style.clipPath = 'inset(0 ' + (100 - pos * 100) + '% 0 0)';
       }
 
-      slider.addEventListener('mousedown', function (e) {
+      slider.addEventListener('pointerdown', function (e) {
         isDragging = true;
+        slider.setPointerCapture(e.pointerId);
         updateSlider(e.clientX);
         e.preventDefault();
       });
 
-      window.addEventListener('mousemove', function (e) {
+      slider.addEventListener('pointermove', function (e) {
         if (isDragging) {
           updateSlider(e.clientX);
         }
       });
 
-      window.addEventListener('mouseup', function () {
+      slider.addEventListener('pointerup', function () {
         isDragging = false;
       });
 
-      // Touch support
-      slider.addEventListener('touchstart', function (e) {
-        isDragging = true;
-        updateSlider(e.touches[0].clientX);
-      });
-
-      window.addEventListener('touchmove', function (e) {
-        if (isDragging) {
-          updateSlider(e.touches[0].clientX);
-        }
-      });
-
-      window.addEventListener('touchend', function () {
+      slider.addEventListener('pointercancel', function () {
         isDragging = false;
       });
     });
@@ -160,9 +158,6 @@
 
   // ─── Smooth Scroll for Anchor Links ──────────
   function initSmoothScroll() {
-    var header = document.querySelector('.header');
-    var headerHeight = header ? header.offsetHeight : 0;
-
     document.querySelectorAll('a[href^="#"]').forEach(function (link) {
       link.addEventListener('click', function (e) {
         var href = this.getAttribute('href');
@@ -172,6 +167,8 @@
         if (!target) return;
 
         e.preventDefault();
+        var header = document.querySelector('.site-header');
+        var headerHeight = header ? header.offsetHeight : 0;
         var top = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
 
         window.scrollTo({
@@ -182,41 +179,30 @@
     });
   }
 
-  // ─── Phone Validation ────────────────────────
+  // ─── Form Validation ─────────────────────────
   function initFormValidation() {
     var forms = document.querySelectorAll('form[data-validate]');
     if (!forms.length) return;
 
     forms.forEach(function (form) {
-      var phoneInput = form.querySelector('[data-validate-phone]');
-      var submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
-
-      if (!submitBtn) return;
-
-      submitBtn.addEventListener('click', function (e) {
+      form.addEventListener('submit', function (e) {
         var isValid = true;
 
+        // Обязательные текстовые поля
+        form.querySelectorAll('input[required]').forEach(function (input) {
+          if (input.hasAttribute('data-validate-phone')) return;
+          var ok = input.value.trim().length > 0;
+          toggleFieldError(form, input, ok);
+          if (!ok) isValid = false;
+        });
+
+        // Телефон: 10–15 цифр после очистки
+        var phoneInput = form.querySelector('[data-validate-phone]');
         if (phoneInput) {
-          var value = phoneInput.value.trim();
-          var phoneError = phoneInput.parentElement.querySelector('.form__error') ||
-                           form.querySelector('[data-error-for="phone"]');
-
-          // Remove + and spaces
-          var cleaned = value.replace(/[\s+()-]/g, '');
-
-          // Must be digits only, 10-15 chars
-          if (!/^\d{10,15}$/.test(cleaned)) {
-            isValid = false;
-            phoneInput.classList.add('error');
-            if (phoneError) {
-              phoneError.style.display = 'block';
-            }
-          } else {
-            phoneInput.classList.remove('error');
-            if (phoneError) {
-              phoneError.style.display = 'none';
-            }
-          }
+          var cleaned = phoneInput.value.trim().replace(/[\s+()-]/g, '');
+          var ok = /^\d{10,15}$/.test(cleaned);
+          toggleFieldError(form, phoneInput, ok);
+          if (!ok) isValid = false;
         }
 
         if (!isValid) {
@@ -224,16 +210,21 @@
         }
       });
 
-      // Clear error on input
-      if (phoneInput) {
-        phoneInput.addEventListener('input', function () {
-          this.classList.remove('error');
-          var error = this.parentElement.querySelector('.form__error') ||
-                     form.querySelector('[data-error-for="phone"]');
-          if (error) error.style.display = 'none';
+      // Снятие ошибки при вводе
+      form.querySelectorAll('input').forEach(function (input) {
+        input.addEventListener('input', function () {
+          toggleFieldError(form, input, true);
         });
-      }
+      });
     });
+  }
+
+  function toggleFieldError(form, input, ok) {
+    input.classList.toggle('error', !ok);
+    var error = input.parentElement.querySelector('.form__error');
+    if (error) {
+      error.classList.toggle('is-visible', !ok);
+    }
   }
 
 })();

@@ -63,10 +63,9 @@
 					<?php dynamic_sidebar( 'sidebar-footer-1' ); ?>
 				<?php else : ?>
 					<ul>
-						<li><a href="<?php echo esc_url( home_url( '/services' ) ); ?>"><?php _e( 'Услуги', 'shumoff' ); ?></a></li>
-						<li><a href="<?php echo esc_url( home_url( '/cases' ) ); ?>"><?php _e( 'Кейсы', 'shumoff' ); ?></a></li>
-						<li><a href="<?php echo esc_url( home_url( '/cars' ) ); ?>"><?php _e( 'Автомобили', 'shumoff' ); ?></a></li>
-						<li><a href="<?php echo esc_url( home_url( '/reviews' ) ); ?>"><?php _e( 'Отзывы', 'shumoff' ); ?></a></li>
+						<li><a href="<?php echo esc_url( get_post_type_archive_link( 'services' ) ); ?>"><?php _e( 'Услуги', 'shumoff' ); ?></a></li>
+						<li><a href="<?php echo esc_url( get_post_type_archive_link( 'cases' ) ); ?>"><?php _e( 'Кейсы', 'shumoff' ); ?></a></li>
+						<li><a href="<?php echo esc_url( get_post_type_archive_link( 'cars' ) ); ?>"><?php _e( 'Автомобили', 'shumoff' ); ?></a></li>
 					</ul>
 				<?php endif; ?>
 			</div>

@@ -47,12 +47,12 @@ get_header();
 
 					<?php
 					// ACF Custom Fields
-					$gallery       = function_exists( 'get_field' ) ? get_field( 'case_gallery' ) : null;
-					$materials     = function_exists( 'get_field' ) ? get_field( 'case_materials' ) : null;
-					$price         = function_exists( 'get_field' ) ? get_field( 'case_price' ) : null;
-					$case_time     = function_exists( 'get_field' ) ? get_field( 'case_time' ) : null;
-					$noise_before  = function_exists( 'get_field' ) ? get_field( 'case_noise_before' ) : null;
-					$noise_after   = function_exists( 'get_field' ) ? get_field( 'case_noise_after' ) : null;
+					$gallery       = shumoff_field( 'case_gallery' );
+					$materials     = shumoff_field( 'case_materials' );
+					$price         = shumoff_field( 'case_price' );
+					$case_time     = shumoff_field( 'case_time' );
+					$noise_before  = shumoff_field( 'case_noise_before' );
+					$noise_after   = shumoff_field( 'case_noise_after' );
 					?>
 
 					<!-- ============================================================
@@ -182,64 +182,12 @@ get_header();
 		endif;
 		?>
 
-		<!-- ============================================================
-		     APPOINTMENT FORM
-		     ============================================================ -->
-		<section class="appointment-section section" id="appointment" aria-label="Форма заявки">
-			<div class="container">
-				<div class="appointment-section__inner">
-					<div class="appointment-section__content">
-						<h2 class="appointment-section__title"><?php _e( 'Хотите такой же результат?', 'shumoff' ); ?></h2>
-						<p class="appointment-section__text"><?php _e( 'Запишитесь на шумоизоляцию — мы добьёмся такого же эффекта для вашего автомобиля!', 'shumoff' ); ?></p>
-						<ul class="appointment-section__benefits">
-							<li><?php _e( 'Бесплатная консультация', 'shumoff' ); ?></li>
-							<li><?php _e( 'Индивидуальный расчёт', 'shumoff' ); ?></li>
-							<li><?php _e( 'Скидка 5% при записи онлайн', 'shumoff' ); ?></li>
-						</ul>
-					</div>
-
-					<div class="appointment-section__form">
-						<form class="appointment-form" method="post" action="<?php echo esc_url( home_url( '/' ) ); ?>" novalidate>
-							<div class="form-group">
-								<label for="appt-name"><?php _e( 'Ваше имя', 'shumoff' ); ?> <span class="required">*</span></label>
-								<input type="text" id="appt-name" name="appt_name" placeholder="<?php _e( 'Иван Иванов', 'shumoff' ); ?>" required>
-							</div>
-
-							<div class="form-group">
-								<label for="appt-phone"><?php _e( 'Телефон', 'shumoff' ); ?> <span class="required">*</span></label>
-								<input type="tel" id="appt-phone" name="appt_phone" placeholder="+7 (___) ___-__-__" required>
-							</div>
-
-							<div class="form-group">
-								<label for="appt-car"><?php _e( 'Марка автомобиля', 'shumoff' ); ?></label>
-								<select id="appt-car" name="appt_car">
-									<option value=""><?php _e( 'Выберите марку', 'shumoff' ); ?></option>
-									<option value="lada">LADA</option>
-									<option value="kia">KIA</option>
-									<option value="hyundai">Hyundai</option>
-									<option value="toyota">Toyota</option>
-									<option value="bmw">BMW</option>
-									<option value="mercedes">Mercedes-Benz</option>
-									<option value="volkswagen">Volkswagen</option>
-									<option value="skoda">Škoda</option>
-									<option value="nissan">Nissan</option>
-									<option value="renault">Renault</option>
-									<option value="other"><?php _e( 'Другая', 'shumoff' ); ?></option>
-								</select>
-							</div>
-
-							<div class="form-group">
-								<button type="submit" class="btn btn-primary btn--lg" style="width:100%;"><?php _e( 'Рассчитать', 'shumoff' ); ?></button>
-							</div>
-
-							<p class="appointment-form__privacy">
-								<?php _e( 'Нажимая кнопку, вы соглашаетесь с', 'shumoff' ); ?> <a href="<?php echo esc_url( home_url( '/privacy-policy' ) ); ?>"><?php _e( 'политикой конфиденциальности', 'shumoff' ); ?></a>.
-							</p>
-						</form>
-					</div>
-				</div>
-			</div>
-		</section>
+		<?php
+		get_template_part( 'template-parts/appointment-form', null, array(
+			'title' => __( 'Хотите такой же результат?', 'shumoff' ),
+			'text'  => __( 'Запишитесь на шумоизоляцию — мы добьёмся такого же эффекта для вашего автомобиля!', 'shumoff' ),
+		) );
+		?>
 
 	</div>
 </main>

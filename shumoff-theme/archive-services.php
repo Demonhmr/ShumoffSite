@@ -35,15 +35,15 @@ get_header();
 			if ( have_posts() ) :
 				while ( have_posts() ) :
 					the_post();
-					$price_from = get_field( 'service_price_from' );
-					$duration   = get_field( 'service_duration' );
+					$price_from = shumoff_field( 'service_price_from' );
+					$duration   = shumoff_field( 'service_duration' );
 					?>
 
 					<article class="service-card hover-lift">
 						<?php if ( has_post_thumbnail() ) : ?>
 							<div class="service-card__image">
 								<a href="<?php the_permalink(); ?>">
-									<?php the_post_thumbnail( 'shumoff-thumb-medium' ); ?>
+									<?php the_post_thumbnail( 'shumoff-thumbnail' ); ?>
 								</a>
 							</div>
 						<?php endif; ?>

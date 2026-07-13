@@ -35,9 +35,9 @@ get_header();
 			if ( have_posts() ) :
 				while ( have_posts() ) :
 					the_post();
-					$gallery = get_field( 'case_gallery' );
-					$price   = get_field( 'case_price' );
-					$time    = get_field( 'case_time' );
+					$gallery = shumoff_field( 'case_gallery' );
+					$price   = shumoff_field( 'case_price' );
+					$time    = shumoff_field( 'case_time' );
 					?>
 
 					<article class="case-card hover-lift">
@@ -51,7 +51,7 @@ get_header();
 										 loading="lazy">
 									<?php
 								elseif ( has_post_thumbnail() ) :
-									the_post_thumbnail( 'shumoff-thumb-medium' );
+									the_post_thumbnail( 'shumoff-thumbnail' );
 								else :
 									?>
 									<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -61,7 +61,7 @@ get_header();
 							</a>
 						</div>
 
-						<div class="case-card__content">
+						<div class="case-card__body">
 							<h3 class="case-card__title">
 								<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 							</h3>

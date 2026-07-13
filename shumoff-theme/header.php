@@ -4,11 +4,10 @@
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- ===== SEO Meta Tags ===== -->
+	<!-- ===== SEO Meta Tags (title выводит WordPress через title-tag) ===== -->
 	<?php
 	$shumoff_seo = shumoff_get_seo_meta();
 	?>
-	<title><?php echo esc_html( $shumoff_seo['title'] ); ?></title>
 	<meta name="description" content="<?php echo esc_attr( $shumoff_seo['description'] ); ?>">
 	<meta name="keywords" content="<?php echo esc_attr( $shumoff_seo['keywords'] ); ?>">
 	<meta name="robots" content="index, follow">
@@ -167,7 +166,7 @@
 						'menu_class'     => '',
 						'container'      => false,
 						'depth'          => 1,
-						'fallback_cb'    => false,
+						'fallback_cb'    => 'shumoff_menu_fallback',
 						'items_wrap'     => '<ul id="%1$s" class="%2$s">%3$s</ul>',
 						'link_before'    => '<span>',
 						'link_after'     => '</span>',

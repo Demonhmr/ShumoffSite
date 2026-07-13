@@ -35,15 +35,15 @@ get_header();
 			if ( have_posts() ) :
 				while ( have_posts() ) :
 					the_post();
-					$full_price = get_field( 'car_full_price' );
-					$car_class  = get_field( 'car_class' );
+					$full_price = shumoff_field( 'car_full_price' );
+					$car_class  = shumoff_field( 'car_class' );
 					?>
 
 					<article class="car-card hover-lift">
 						<?php if ( has_post_thumbnail() ) : ?>
 							<div class="car-card__image">
 								<a href="<?php the_permalink(); ?>">
-									<?php the_post_thumbnail( 'shumoff-thumb-medium' ); ?>
+									<?php the_post_thumbnail( 'shumoff-thumbnail' ); ?>
 								</a>
 							</div>
 						<?php endif; ?>

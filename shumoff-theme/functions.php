@@ -67,20 +67,20 @@ function shumoff_enqueue_scripts() {
 		null
 	);
 
-	// Enqueue main stylesheet (theme header + CSS variables)
+	// Enqueue main stylesheet (база: каркас, шапка, подвал, главная)
 	wp_enqueue_style(
 		'theme-style',
 		get_stylesheet_directory_uri() . '/style.css',
 		array(),
-		'1.0.0'
+		filemtime( get_stylesheet_directory() . '/style.css' )
 	);
 
-	// Enqueue main CSS (all component styles)
+	// Enqueue main CSS (компоненты внутренних страниц)
 	wp_enqueue_style(
 		'theme-main-css',
 		get_stylesheet_directory_uri() . '/assets/css/main.css',
 		array( 'theme-style' ),
-		'1.0.0'
+		filemtime( get_stylesheet_directory() . '/assets/css/main.css' )
 	);
 
 	// Enqueue main JavaScript
@@ -88,7 +88,7 @@ function shumoff_enqueue_scripts() {
 		'theme-main',
 		get_stylesheet_directory_uri() . '/assets/js/main.js',
 		array(),
-		'1.0.0',
+		filemtime( get_stylesheet_directory() . '/assets/js/main.js' ),
 		true
 	);
 
@@ -144,6 +144,42 @@ function shumoff_register_sidebars() {
 	}
 }
 add_action( 'widgets_init', 'shumoff_register_sidebars' );
+
+/**
+ * Safe ACF field getter: тема не должна падать при выключенном ACF.
+ *
+ * @param string    $name    Имя поля.
+ * @param int|false $post_id ID записи (по умолчанию — текущая).
+ * @param mixed     $default Значение, если поле пусто или ACF неактивен.
+ * @return mixed
+ */
+function shumoff_field( $name, $post_id = false, $default = null ) {
+	if ( function_exists( 'get_field' ) ) {
+		$value = get_field( $name, $post_id );
+		if ( null !== $value && false !== $value && '' !== $value ) {
+			return $value;
+		}
+	}
+	return $default;
+}
+
+/**
+ * Fallback для меню: список основных разделов, пока меню не назначено.
+ */
+function shumoff_menu_fallback() {
+	$links = array(
+		get_post_type_archive_link( 'services' ) => __( 'Услуги', 'shumoff' ),
+		get_post_type_archive_link( 'cases' )    => __( 'Кейсы', 'shumoff' ),
+		get_post_type_archive_link( 'cars' )     => __( 'Автомобили', 'shumoff' ),
+	);
+	echo '<ul>';
+	foreach ( $links as $url => $label ) {
+		if ( $url ) {
+			printf( '<li><a href="%s"><span>%s</span></a></li>', esc_url( $url ), esc_html( $label ) );
+		}
+	}
+	echo '</ul>';
+}
 
 /**
  * Custom excerpt length.
@@ -241,10 +277,10 @@ function shumoff_get_seo_meta() {
 	}
 
 	// Override with ACF fields if available
-	if ( function_exists( 'get_field' ) && is_singular() ) {
-		$acf_title = get_field( 'seo_title' );
-		$acf_desc  = get_field( 'seo_description' );
-		$acf_kw    = get_field( 'seo_keywords' );
+	if ( is_singular() ) {
+		$acf_title = shumoff_field( 'seo_title' );
+		$acf_desc  = shumoff_field( 'seo_description' );
+		$acf_kw    = shumoff_field( 'seo_keywords' );
 		if ( $acf_title ) {
 			$title = $acf_title;
 		}
@@ -280,6 +316,11 @@ add_filter( 'pre_get_document_title', 'shumoff_document_title', 10 );
  * ============================================================
  */
 function shumoff_robots_txt( $output, $public ) {
+	// Уважаем настройку «не индексировать сайт» (dev/staging-площадки).
+	if ( '0' === (string) $public ) {
+		return $output;
+	}
+
 	$home_url = home_url( '/' );
 	$output  = "User-agent: *\n";
 	$output .= "Allow: /\n";
