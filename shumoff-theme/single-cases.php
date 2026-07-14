@@ -64,11 +64,7 @@ get_header();
 							<div class="case-gallery__grid">
 								<?php foreach ( $gallery as $image ) : ?>
 									<figure class="case-gallery__item">
-										<img src="<?php echo esc_url( $image['url'] ); ?>"
-										     alt="<?php echo esc_attr( isset( $image['alt'] ) ? $image['alt'] : get_the_title() ); ?>"
-										     width="<?php echo esc_attr( isset( $image['width'] ) ? $image['width'] : 800 ); ?>"
-										     height="<?php echo esc_attr( isset( $image['height'] ) ? $image['height'] : 600 ); ?>"
-										     loading="lazy">
+										<?php shumoff_acf_image( $image, 'shumoff-featured' ); ?>
 									</figure>
 								<?php endforeach; ?>
 							</div>

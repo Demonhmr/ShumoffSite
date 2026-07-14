@@ -83,37 +83,9 @@
 	</div>
 </footer>
 
-<!-- ===== Schema.org BreadcrumbList (JSON-LD) ===== -->
+<!-- ===== Schema.org BreadcrumbList (JSON-LD): тот же источник, что и видимые крошки ===== -->
 <?php if ( ! is_front_page() && ! is_404() ) : ?>
-<script type="application/ld+json">
-{
-	"@context": "https://schema.org",
-	"@type": "BreadcrumbList",
-	"itemListElement": [
-		{
-			"@type": "ListItem",
-			"position": 1,
-			"name": "Главная",
-			"item": "<?php echo esc_url( home_url( '/' ) ); ?>"
-		}
-		<?php if ( is_singular() ) : ?>
-		,{
-			"@type": "ListItem",
-			"position": 2,
-			"name": "<?php echo esc_js( get_the_title() ); ?>",
-			"item": "<?php echo esc_url( get_permalink() ); ?>"
-		}
-		<?php elseif ( is_post_type_archive() ) : ?>
-		,{
-			"@type": "ListItem",
-			"position": 2,
-			"name": "<?php echo esc_js( post_type_archive_title( '', false ) ); ?>",
-			"item": "<?php echo esc_url( get_post_type_archive_link( get_post_type() ) ); ?>"
-		}
-		<?php endif; ?>
-	]
-}
-</script>
+	<?php shumoff_print_jsonld( shumoff_schema_breadcrumbs() ); ?>
 <?php endif; ?>
 
 <?php wp_footer(); ?>

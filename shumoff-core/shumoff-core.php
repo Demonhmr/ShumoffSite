@@ -405,6 +405,31 @@ function shumoff_register_acf_fields() {
 		) );
 
 		acf_add_local_field_group( array(
+			'key'      => 'group_site_design',
+			'title'    => 'Оформление главной',
+			'fields'   => array(
+				array(
+					'key'           => 'field_site_hero_image',
+					'label'         => 'Hero-изображение (главный баннер)',
+					'name'          => 'site_hero_image',
+					'type'          => 'image',
+					'return_format' => 'array',
+					'preview_size'  => 'shumoff-thumbnail',
+					'instructions'  => 'Реальное фото работ ~1400×600. Пусто — показывается заглушка. Загружайте JPEG: превью автоматически создаются в WebP.',
+				),
+			),
+			'location' => array(
+				array(
+					array(
+						'param'    => 'options_page',
+						'operator' => '==',
+						'value'    => 'shumoff-settings',
+					),
+				),
+			),
+		) );
+
+		acf_add_local_field_group( array(
 			'key'      => 'group_site_faq',
 			'title'    => 'FAQ на главной',
 			'fields'   => array(

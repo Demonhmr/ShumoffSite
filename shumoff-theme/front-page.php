@@ -25,11 +25,42 @@ get_header();
 					</div>
 				</div>
 				<div class="hero-section__image">
-					<svg viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Шумоизоляция автомобиля" style="width:100%;max-width:500px;border-radius:12px;background:var(--color-bg-alt);display:block;">
-						<rect width="500" height="400" fill="var(--color-bg-alt)"/>
-						<text x="250" y="190" text-anchor="middle" font-family="var(--font-body)" font-size="18" fill="#999">Hero Image Placeholder</text>
-						<text x="250" y="215" text-anchor="middle" font-family="var(--font-body)" font-size="14" fill="#bbb">500 × 400 px</text>
-					</svg>
+					<?php
+					// Hero из «Настроек сайта» (site_hero_image). LCP-элемент:
+					// загружаем сразу (eager + fetchpriority), preload — в wp_head.
+					$shumoff_hero_id = shumoff_hero_image_id();
+					if ( $shumoff_hero_id ) :
+						echo wp_get_attachment_image(
+							$shumoff_hero_id,
+							'shumoff-hero',
+							false,
+							array(
+								'class'         => 'hero-section__img',
+								'loading'       => 'eager',
+								'fetchpriority' => 'high',
+								'alt'           => __( 'Шумоизоляция автомобиля в работе', 'shumoff' ),
+							)
+						);
+					else :
+						?>
+						<svg viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Шумоизоляция автомобиля" class="hero-section__img hero-section__img--placeholder">
+							<rect width="500" height="400" rx="12" fill="#1a1d23"/>
+							<g stroke="#FF6B00" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M95 245 l30 -55 q8 -14 25 -14 h140 q17 0 30 12 l45 42 h60 q22 0 22 22 v28 q0 12 -12 12 h-18"/>
+								<path d="M95 245 h-15 q-12 0 -12 -12 v-8 q0 -16 27 -20"/>
+								<circle cx="160" cy="285" r="26"/>
+								<circle cx="340" cy="285" r="26"/>
+								<path d="M186 292 h128"/>
+								<path d="M150 190 l-12 40 h180 l-38 -38 q-8 -8 -20 -8z" opacity="0.35" fill="#FF6B00" stroke="none"/>
+							</g>
+							<g stroke="#3a3f4a" stroke-width="3" stroke-linecap="round">
+								<path d="M368 150 q14 14 0 28"/>
+								<path d="M386 138 q26 26 0 52"/>
+								<path d="M404 126 q38 38 0 76"/>
+							</g>
+							<text x="250" y="355" text-anchor="middle" font-family="Manrope, sans-serif" font-size="17" font-weight="600" fill="#8a8f99">Тишина в вашем автомобиле</text>
+						</svg>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>

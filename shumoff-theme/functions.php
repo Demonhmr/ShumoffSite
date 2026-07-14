@@ -59,19 +59,20 @@ add_action( 'after_setup_theme', 'shumoff_theme_setup' );
  */
 function shumoff_enqueue_scripts() {
 
-	// Enqueue Google Fonts (Manrope + Inter)
+	// Self-hosted шрифты (Manrope + Inter, variable woff2): быстрее
+	// Google Fonts и без передачи данных третьим лицам.
 	wp_enqueue_style(
-		'google-fonts',
-		'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap',
+		'theme-fonts',
+		get_stylesheet_directory_uri() . '/assets/css/fonts.css',
 		array(),
-		null
+		filemtime( get_stylesheet_directory() . '/assets/css/fonts.css' )
 	);
 
 	// Enqueue main stylesheet (база: каркас, шапка, подвал, главная)
 	wp_enqueue_style(
 		'theme-style',
 		get_stylesheet_directory_uri() . '/style.css',
-		array(),
+		array( 'theme-fonts' ),
 		filemtime( get_stylesheet_directory() . '/style.css' )
 	);
 
@@ -342,37 +343,60 @@ add_filter( 'excerpt_more', 'shumoff_excerpt_more' );
 
 /**
  * ============================================================
- * SEO: Meta title, description, keywords, Open Graph
+ * SEO: Meta title, description, canonical, Open Graph
  * ============================================================
  */
 
 /**
+ * Canonical URL текущей страницы — всегда «чистый» постоянный адрес,
+ * без query string (utm-метки, ?s= и т.п. не плодят дубли).
+ * Пустая строка = canonical выводить не нужно (поиск, 404).
+ *
+ * @return string
+ */
+function shumoff_get_canonical_url() {
+	$url = '';
+
+	if ( is_front_page() ) {
+		$url = home_url( '/' );
+	} elseif ( is_singular() ) {
+		$url = wp_get_canonical_url() ?: get_permalink();
+	} elseif ( is_post_type_archive() ) {
+		$url = get_post_type_archive_link( get_query_var( 'post_type' ) ) ?: '';
+	} elseif ( is_category() || is_tag() || is_tax() ) {
+		$term_link = get_term_link( get_queried_object() );
+		$url       = is_wp_error( $term_link ) ? '' : $term_link;
+	} elseif ( is_home() ) {
+		$page_for_posts = (int) get_option( 'page_for_posts' );
+		$url            = $page_for_posts ? get_permalink( $page_for_posts ) : home_url( '/' );
+	}
+
+	// Пагинация архивов: canonical указывает на конкретную страницу списка.
+	$paged = (int) get_query_var( 'paged' );
+	if ( $url && ! is_singular() && $paged > 1 ) {
+		$url = trailingslashit( $url ) . user_trailingslashit( 'page/' . $paged, 'paged' );
+	}
+
+	return $url;
+}
+
+/**
  * Get SEO meta data for the current page.
  *
- * @return array title, description, keywords, url, image
+ * @return array title, description, url (canonical), image
  */
 function shumoff_get_seo_meta() {
-	$site_name = get_bloginfo( 'name' );
-	$site_desc = get_bloginfo( 'description' );
-	$url       = home_url( add_query_arg( array(), $_SERVER['REQUEST_URI'] ?? '' ) );
-	$image     = '';
+	$url   = shumoff_get_canonical_url();
+	$image = '';
 
 	// Default SEO
 	$title       = 'Шумоизоляция автомобилей в Подольске и Москве | Shumoff Podolsk';
 	$description = 'Профессиональная шумоизоляция автомобилей в Подольске и Москве. Опыт 10+ лет, гарантия 12 месяцев. Simple, Medium, Premium комплекты от 15 000 ₽.';
-	$keywords    = 'шумоизоляция, шумоизоляция авто, шумоизоляция автомобиля, Подольск, Москва, Shumoff, StP, виброизоляция, звукоизоляция авто';
 
-	// Front page
-	if ( is_front_page() ) {
-		$title       = 'Шумоизоляция автомобилей в Подольске и Москве | Shumoff Podolsk';
-		$description = 'Профессиональная шумоизоляция автомобилей в Подольске и Москве. Опыт 10+ лет, гарантия 12 месяцев. Simple, Medium, Premium комплекты от 15 000 ₽.';
-		$keywords    = 'шумоизоляция, шумоизоляция авто, шумоизоляция автомобиля, Подольск, Москва, Shumoff, StP, виброизоляция, звукоизоляция авто';
-	}
 	// Single services
-	elseif ( is_singular( 'services' ) ) {
+	if ( is_singular( 'services' ) ) {
 		$title       = single_post_title( '', false ) . ' | Shumoff Podolsk';
 		$description = wp_strip_all_tags( get_the_excerpt() ?: 'Шумоизоляция услуги от Shumoff Podolsk.' );
-		$keywords    = 'шумоизоляция, услуги шумоизоляции, ' . single_post_title( '', false );
 		if ( has_post_thumbnail() ) {
 			$image = wp_get_attachment_image_url( get_post_thumbnail_id(), 'full' );
 		}
@@ -423,26 +447,37 @@ function shumoff_get_seo_meta() {
 	if ( is_singular() ) {
 		$acf_title = shumoff_field( 'seo_title' );
 		$acf_desc  = shumoff_field( 'seo_description' );
-		$acf_kw    = shumoff_field( 'seo_keywords' );
 		if ( $acf_title ) {
 			$title = $acf_title;
 		}
 		if ( $acf_desc ) {
 			$description = $acf_desc;
 		}
-		if ( $acf_kw ) {
-			$keywords = $acf_kw;
-		}
 	}
 
 	return array(
 		'title'       => $title,
 		'description' => mb_substr( $description, 0, 160 ),
-		'keywords'    => $keywords,
 		'url'         => $url,
 		'image'       => $image,
 	);
 }
+
+/**
+ * Директивы robots: страницам без полезного контента — noindex.
+ * Поиск ядро закрывает само (wp_robots_noindex_search), добавляем 404.
+ *
+ * @param array $robots Директивы от ядра.
+ * @return array
+ */
+function shumoff_wp_robots( $robots ) {
+	if ( is_404() ) {
+		$robots['noindex'] = true;
+		$robots['follow']  = true;
+	}
+	return $robots;
+}
+add_filter( 'wp_robots', 'shumoff_wp_robots' );
 
 /**
  * Override WordPress title (fallback if no SEO plugin).
@@ -476,10 +511,25 @@ function shumoff_robots_txt( $output, $public ) {
 	$output .= "Disallow: /*/trackback/\n";
 	$output .= "Disallow: /?s=\n";
 	$output .= "Disallow: /search\n";
-	$output .= "Sitemap: " . $home_url . "sitemap.xml\n";
+	$output .= "Sitemap: " . $home_url . "wp-sitemap.xml\n";
 	return $output;
 }
 add_filter( 'robots_txt', 'shumoff_robots_txt', 10, 2 );
+
+/**
+ * ============================================================
+ * Sitemap: встроенный wp-sitemap.xml (WP 5.5+).
+ * Убираем провайдер авторов — на сайте один автор,
+ * его архив не несёт контента и дублирует главную.
+ * ============================================================
+ */
+function shumoff_sitemap_providers( $provider, $name ) {
+	if ( 'users' === $name ) {
+		return false;
+	}
+	return $provider;
+}
+add_filter( 'wp_sitemaps_add_provider', 'shumoff_sitemap_providers', 10, 2 );
 
 /**
  * ============================================================
@@ -513,3 +563,385 @@ function shumoff_body_classes( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'shumoff_body_classes' );
+
+/**
+ * ============================================================
+ * Хлебные крошки: один источник данных для видимой разметки
+ * и для JSON-LD BreadcrumbList (footer.php).
+ * ============================================================
+ */
+
+/**
+ * Массив крошек текущей страницы: [['name' => ..., 'url' => ...], ...].
+ * Последний элемент — текущая страница.
+ *
+ * @return array[]
+ */
+function shumoff_get_breadcrumbs() {
+	$crumbs = array(
+		array(
+			'name' => __( 'Главная', 'shumoff' ),
+			'url'  => home_url( '/' ),
+		),
+	);
+
+	// Таксономия → архив родительского типа записей.
+	$taxonomy_parents = array(
+		'car_brand' => 'cars',
+		'case_type' => 'cases',
+	);
+
+	if ( is_singular() ) {
+		$post_type = get_post_type();
+		$pt_object = get_post_type_object( $post_type );
+		$archive   = get_post_type_archive_link( $post_type );
+		if ( $archive && $pt_object && $pt_object->has_archive ) {
+			$crumbs[] = array(
+				'name' => $pt_object->labels->name,
+				'url'  => $archive,
+			);
+		}
+		$crumbs[] = array(
+			'name' => get_the_title(),
+			'url'  => get_permalink(),
+		);
+	} elseif ( is_post_type_archive() ) {
+		$crumbs[] = array(
+			'name' => post_type_archive_title( '', false ),
+			'url'  => get_post_type_archive_link( get_query_var( 'post_type' ) ),
+		);
+	} elseif ( is_tax() || is_category() || is_tag() ) {
+		$term = get_queried_object();
+		if ( $term && isset( $taxonomy_parents[ $term->taxonomy ] ) ) {
+			$parent_type = get_post_type_object( $taxonomy_parents[ $term->taxonomy ] );
+			$parent_link = get_post_type_archive_link( $taxonomy_parents[ $term->taxonomy ] );
+			if ( $parent_type && $parent_link ) {
+				$crumbs[] = array(
+					'name' => $parent_type->labels->name,
+					'url'  => $parent_link,
+				);
+			}
+		}
+		if ( $term && ! is_wp_error( $term ) ) {
+			$term_link = get_term_link( $term );
+			$crumbs[]  = array(
+				'name' => $term->name,
+				'url'  => is_wp_error( $term_link ) ? '' : $term_link,
+			);
+		}
+	} elseif ( is_search() ) {
+		$crumbs[] = array(
+			'name' => sprintf( __( 'Поиск: %s', 'shumoff' ), get_search_query() ),
+			'url'  => '',
+		);
+	}
+
+	return $crumbs;
+}
+
+/**
+ * Видимые хлебные крошки. Выводятся в header.php на всех
+ * страницах, кроме главной и 404.
+ */
+function shumoff_breadcrumbs() {
+	$crumbs = shumoff_get_breadcrumbs();
+	if ( count( $crumbs ) < 2 ) {
+		return;
+	}
+
+	$last = count( $crumbs ) - 1;
+	echo '<nav class="breadcrumbs" aria-label="' . esc_attr__( 'Хлебные крошки', 'shumoff' ) . '"><div class="container"><ol class="breadcrumbs__list">';
+	foreach ( $crumbs as $i => $crumb ) {
+		echo '<li class="breadcrumbs__item">';
+		if ( $i < $last && ! empty( $crumb['url'] ) ) {
+			printf( '<a href="%s">%s</a>', esc_url( $crumb['url'] ), esc_html( $crumb['name'] ) );
+		} else {
+			printf( '<span aria-current="page">%s</span>', esc_html( $crumb['name'] ) );
+		}
+		echo '</li>';
+	}
+	echo '</ol></div></nav>';
+}
+
+/**
+ * ============================================================
+ * JSON-LD: общий принтер и билдеры схем.
+ * ============================================================
+ */
+
+/**
+ * Печатает массив как <script type="application/ld+json">.
+ *
+ * @param array $schema Схема.
+ */
+function shumoff_print_jsonld( $schema ) {
+	if ( empty( $schema ) ) {
+		return;
+	}
+	echo '<script type="application/ld+json">'
+		. wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES )
+		. '</script>' . "\n";
+}
+
+/**
+ * Схема AutoRepair (LocalBusiness) c каталогом комплектов (OfferCatalog).
+ *
+ * @return array
+ */
+function shumoff_schema_local_business() {
+	$packages = array_map(
+		function ( $package ) {
+			$offer = array(
+				'@type'         => 'Offer',
+				'itemOffered'   => array(
+					'@type'       => 'Service',
+					'name'        => 'Шумоизоляция автомобиля — комплект ' . $package['name'],
+					'description' => implode( '; ', $package['features'] ),
+				),
+				'priceCurrency' => 'RUB',
+			);
+			$price = (int) preg_replace( '/[^0-9]/', '', (string) $package['price_from'] );
+			if ( $price > 0 ) {
+				// «от N ₽» — по Schema.org это нижняя граница PriceSpecification.
+				$offer['priceSpecification'] = array(
+					'@type'         => 'PriceSpecification',
+					'minPrice'      => $price,
+					'priceCurrency' => 'RUB',
+				);
+			}
+			return $offer;
+		},
+		shumoff_get_packages()
+	);
+
+	return array(
+		'@context'                  => 'https://schema.org',
+		'@type'                     => 'AutoRepair',
+		'@id'                       => home_url( '/' ) . '#business',
+		'name'                      => 'Shumoff Podolsk',
+		'description'               => 'Профессиональная шумоизоляция автомобилей в Подольске и Москве',
+		'url'                       => home_url( '/' ),
+		'telephone'                 => shumoff_contact_phone_link(),
+		'email'                     => shumoff_contact( 'contact_email' ),
+		'address'                   => array(
+			'@type'           => 'PostalAddress',
+			'addressLocality' => 'Подольск',
+			'addressRegion'   => 'Московская область',
+			'addressCountry'  => 'RU',
+		),
+		'geo'                       => array(
+			'@type'     => 'GeoCoordinates',
+			'latitude'  => 55.4242,
+			'longitude' => 37.5459,
+		),
+		'openingHoursSpecification' => array(
+			array(
+				'@type'     => 'OpeningHoursSpecification',
+				'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
+				'opens'     => '09:00',
+				'closes'    => '20:00',
+			),
+		),
+		'priceRange'                => '15000-60000 RUB',
+		'areaServed'                => array( 'Подольск', 'Москва', 'Московская область' ),
+		'sameAs'                    => array(
+			shumoff_contact( 'contact_whatsapp' ),
+			shumoff_contact( 'contact_telegram' ),
+		),
+		'hasOfferCatalog'           => array(
+			'@type'           => 'OfferCatalog',
+			'name'            => 'Комплекты шумоизоляции',
+			'itemListElement' => $packages,
+		),
+	);
+}
+
+/**
+ * Схема Service + Offer для страницы услуги.
+ *
+ * @return array
+ */
+function shumoff_schema_service() {
+	$schema = array(
+		'@context'    => 'https://schema.org',
+		'@type'       => 'Service',
+		'name'        => get_the_title(),
+		'description' => wp_strip_all_tags( get_the_excerpt() ),
+		'url'         => get_permalink(),
+		'serviceType' => 'Шумоизоляция автомобиля',
+		'areaServed'  => array( 'Подольск', 'Москва', 'Московская область' ),
+		'provider'    => array(
+			'@type' => 'AutoRepair',
+			'@id'   => home_url( '/' ) . '#business',
+			'name'  => 'Shumoff Podolsk',
+			'url'   => home_url( '/' ),
+		),
+	);
+
+	if ( has_post_thumbnail() ) {
+		$schema['image'] = wp_get_attachment_image_url( get_post_thumbnail_id(), 'full' );
+	}
+
+	$price = (int) preg_replace( '/[^0-9]/', '', (string) shumoff_field( 'service_price_from' ) );
+	if ( $price > 0 ) {
+		$schema['offers'] = array(
+			'@type'              => 'Offer',
+			'priceCurrency'      => 'RUB',
+			'priceSpecification' => array(
+				'@type'         => 'PriceSpecification',
+				'minPrice'      => $price,
+				'priceCurrency' => 'RUB',
+			),
+			'availability'       => 'https://schema.org/InStock',
+			'url'                => get_permalink(),
+		);
+	}
+
+	return $schema;
+}
+
+/**
+ * Схема BreadcrumbList — из того же массива, что и видимые крошки.
+ *
+ * @return array
+ */
+function shumoff_schema_breadcrumbs() {
+	$crumbs = shumoff_get_breadcrumbs();
+	if ( count( $crumbs ) < 2 ) {
+		return array();
+	}
+
+	$items = array();
+	foreach ( $crumbs as $i => $crumb ) {
+		$item = array(
+			'@type'    => 'ListItem',
+			'position' => $i + 1,
+			'name'     => $crumb['name'],
+		);
+		if ( ! empty( $crumb['url'] ) ) {
+			$item['item'] = $crumb['url'];
+		}
+		$items[] = $item;
+	}
+
+	return array(
+		'@context'        => 'https://schema.org',
+		'@type'           => 'BreadcrumbList',
+		'itemListElement' => $items,
+	);
+}
+
+/**
+ * ============================================================
+ * Производительность: preload шрифтов, WebP, hero-изображение.
+ * ============================================================
+ */
+
+/**
+ * Preload кириллических woff2 — основной текст сайта русский,
+ * латинские субсеты браузер догрузит сам по unicode-range.
+ */
+function shumoff_preload_fonts() {
+	$fonts = array( 'manrope-var-cyrillic.woff2', 'inter-var-cyrillic.woff2' );
+	foreach ( $fonts as $font ) {
+		printf(
+			'<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n",
+			esc_url( get_stylesheet_directory_uri() . '/assets/fonts/' . $font )
+		);
+	}
+}
+add_action( 'wp_head', 'shumoff_preload_fonts', 2 );
+
+/**
+ * Все производные размеры JPEG генерируются в WebP (WP 6.1+).
+ * PNG не трогаем: логотипы с прозрачностью надёжнее оставить как есть.
+ *
+ * @param array $formats Карта mime → mime.
+ * @return array
+ */
+function shumoff_webp_subsizes( $formats ) {
+	$formats['image/jpeg'] = 'image/webp';
+	return $formats;
+}
+add_filter( 'image_editor_output_format', 'shumoff_webp_subsizes' );
+
+/**
+ * ID hero-изображения главной из «Настроек сайта» (ACF Options,
+ * поле site_hero_image). 0 — не задано, выводится SVG-заглушка.
+ *
+ * @return int
+ */
+function shumoff_hero_image_id() {
+	$image = shumoff_field( 'site_hero_image', 'option' );
+	if ( is_array( $image ) && isset( $image['ID'] ) ) {
+		return (int) $image['ID'];
+	}
+	return (int) $image;
+}
+
+/**
+ * Preload hero-изображения на главной — это LCP-элемент.
+ */
+function shumoff_preload_hero() {
+	if ( ! is_front_page() ) {
+		return;
+	}
+	$hero_id = shumoff_hero_image_id();
+	if ( ! $hero_id ) {
+		return;
+	}
+	$src = wp_get_attachment_image_url( $hero_id, 'shumoff-hero' );
+	if ( ! $src ) {
+		return;
+	}
+	$srcset = wp_get_attachment_image_srcset( $hero_id, 'shumoff-hero' );
+	$sizes  = wp_get_attachment_image_sizes( $hero_id, 'shumoff-hero' );
+	if ( $srcset && $sizes ) {
+		printf(
+			'<link rel="preload" as="image" href="%s" imagesrcset="%s" imagesizes="%s">' . "\n",
+			esc_url( $src ),
+			esc_attr( $srcset ),
+			esc_attr( $sizes )
+		);
+	} else {
+		printf( '<link rel="preload" as="image" href="%s">' . "\n", esc_url( $src ) );
+	}
+}
+add_action( 'wp_head', 'shumoff_preload_hero', 2 );
+
+/**
+ * Картинка из ACF-галереи с srcset и lazy-loading.
+ * При наличии ID отдаёт через wp_get_attachment_image (srcset, WebP),
+ * иначе — обычный <img> по URL нужного размера.
+ *
+ * @param array  $image ACF-массив изображения.
+ * @param string $size  Зарегистрированный размер.
+ * @param array  $attrs Дополнительные атрибуты <img>.
+ */
+function shumoff_acf_image( $image, $size = 'shumoff-thumbnail', $attrs = array() ) {
+	if ( ! is_array( $image ) ) {
+		return;
+	}
+
+	$attrs = wp_parse_args( $attrs, array( 'loading' => 'lazy' ) );
+
+	if ( ! empty( $image['ID'] ) ) {
+		echo wp_get_attachment_image( (int) $image['ID'], $size, false, $attrs );
+		return;
+	}
+
+	$src = $image['sizes'][ $size ] ?? $image['url'] ?? '';
+	if ( ! $src ) {
+		return;
+	}
+	$attr_html = '';
+	foreach ( $attrs as $key => $value ) {
+		$attr_html .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+	}
+	printf(
+		'<img src="%s" alt="%s"%s>',
+		esc_url( $src ),
+		esc_attr( $image['alt'] ?? get_the_title() ),
+		$attr_html // экранировано выше
+	);
+}

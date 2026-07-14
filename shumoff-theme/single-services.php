@@ -127,10 +127,8 @@ get_header();
 									<div class="case-card__image">
 										<a href="<?php the_permalink(); ?>">
 											<?php
-											if ( $gallery && ! empty( $gallery ) && isset( $gallery[0]['url'] ) ) :
-												?>
-												<img src="<?php echo esc_url( $gallery[0]['url'] ); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy">
-												<?php
+											if ( $gallery && ! empty( $gallery[0] ) ) :
+												shumoff_acf_image( $gallery[0], 'shumoff-thumbnail', array( 'alt' => the_title_attribute( array( 'echo' => false ) ) ) );
 											elseif ( has_post_thumbnail() ) :
 												the_post_thumbnail( 'shumoff-thumbnail' );
 											else :

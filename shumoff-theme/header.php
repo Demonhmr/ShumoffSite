@@ -9,15 +9,15 @@
 	$shumoff_seo = shumoff_get_seo_meta();
 	?>
 	<meta name="description" content="<?php echo esc_attr( $shumoff_seo['description'] ); ?>">
-	<meta name="keywords" content="<?php echo esc_attr( $shumoff_seo['keywords'] ); ?>">
-	<meta name="robots" content="index, follow">
 	<meta name="author" content="Shumoff Podolsk">
 
 	<!-- ===== Open Graph ===== -->
 	<meta property="og:type" content="<?php echo is_front_page() ? 'website' : 'article'; ?>">
 	<meta property="og:title" content="<?php echo esc_attr( $shumoff_seo['title'] ); ?>">
 	<meta property="og:description" content="<?php echo esc_attr( $shumoff_seo['description'] ); ?>">
-	<meta property="og:url" content="<?php echo esc_url( $shumoff_seo['url'] ); ?>">
+	<?php if ( ! empty( $shumoff_seo['url'] ) ) : ?>
+		<meta property="og:url" content="<?php echo esc_url( $shumoff_seo['url'] ); ?>">
+	<?php endif; ?>
 	<meta property="og:site_name" content="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
 	<meta property="og:locale" content="ru_RU">
 	<?php if ( ! empty( $shumoff_seo['image'] ) ) : ?>
@@ -32,8 +32,10 @@
 		<meta name="twitter:image" content="<?php echo esc_url( $shumoff_seo['image'] ); ?>">
 	<?php endif; ?>
 
-	<!-- ===== Canonical ===== -->
-	<link rel="canonical" href="<?php echo esc_url( $shumoff_seo['url'] ); ?>">
+	<!-- ===== Canonical: чистый постоянный адрес без query string ===== -->
+	<?php if ( ! empty( $shumoff_seo['url'] ) ) : ?>
+		<link rel="canonical" href="<?php echo esc_url( $shumoff_seo['url'] ); ?>">
+	<?php endif; ?>
 
 	<!-- ===== Favicon ===== -->
 	<link rel="profile" href="https://gmpg.org/xfn/11">
@@ -43,66 +45,37 @@
 		<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23FF6B00'/><text x='50' y='68' font-family='Arial' font-size='52' font-weight='bold' fill='white' text-anchor='middle'>S</text></svg>">
 	<?php endif; ?>
 
-	<!-- ===== Schema.org LocalBusiness (JSON-LD) ===== -->
+	<!-- ===== Schema.org (JSON-LD) ===== -->
 	<?php if ( is_front_page() ) : ?>
-	<script type="application/ld+json">
-	{
-		"@context": "https://schema.org",
-		"@type": "AutoRepair",
-		"name": "Shumoff Podolsk",
-		"description": "Профессиональная шумоизоляция автомобилей в Подольске и Москве",
-		"url": "<?php echo esc_url( home_url( '/' ) ); ?>",
-		"telephone": "<?php echo esc_js( shumoff_contact_phone_link() ); ?>",
-		"email": "<?php echo esc_js( shumoff_contact( 'contact_email' ) ); ?>",
-		"address": {
-			"@type": "PostalAddress",
-			"addressLocality": "Подольск",
-			"addressRegion": "Московская область",
-			"addressCountry": "RU"
-		},
-		"geo": {
-			"@type": "GeoCoordinates",
-			"latitude": 55.4242,
-			"longitude": 37.5459
-		},
-		"openingHoursSpecification": [{
-			"@type": "OpeningHoursSpecification",
-			"dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
-			"opens": "09:00",
-			"closes": "20:00"
-		}],
-		"priceRange": "15000-60000 RUB",
-		"areaServed": ["Подольск", "Москва", "Московская область"],
-		"sameAs": [
-			"<?php echo esc_url( shumoff_contact( 'contact_whatsapp' ) ); ?>",
-			"<?php echo esc_url( shumoff_contact( 'contact_telegram' ) ); ?>"
-		]
-	}
-	</script>
+		<?php
+		// AutoRepair (LocalBusiness) + OfferCatalog комплектов.
+		shumoff_print_jsonld( shumoff_schema_local_business() );
 
-	<!-- ===== FAQ Schema (JSON-LD): тот же источник, что и разметка на главной ===== -->
-	<script type="application/ld+json">
-	<?php
-	$shumoff_faq_schema = array(
-		'@context'   => 'https://schema.org',
-		'@type'      => 'FAQPage',
-		'mainEntity' => array_map(
-			function ( $faq ) {
-				return array(
-					'@type'          => 'Question',
-					'name'           => $faq['question'],
-					'acceptedAnswer' => array(
-						'@type' => 'Answer',
-						'text'  => $faq['answer'],
-					),
-				);
-			},
-			shumoff_get_faqs()
-		),
-	);
-	echo wp_json_encode( $shumoff_faq_schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
-	?>
-	</script>
+		// FAQ: тот же источник, что и разметка на главной.
+		shumoff_print_jsonld(
+			array(
+				'@context'   => 'https://schema.org',
+				'@type'      => 'FAQPage',
+				'mainEntity' => array_map(
+					function ( $faq ) {
+						return array(
+							'@type'          => 'Question',
+							'name'           => $faq['question'],
+							'acceptedAnswer' => array(
+								'@type' => 'Answer',
+								'text'  => $faq['answer'],
+							),
+						);
+					},
+					shumoff_get_faqs()
+				),
+			)
+		);
+		?>
+	<?php endif; ?>
+
+	<?php if ( is_singular( 'services' ) ) : ?>
+		<?php shumoff_print_jsonld( shumoff_schema_service() ); ?>
 	<?php endif; ?>
 
 	<?php wp_head(); ?>
@@ -169,3 +142,7 @@
 		</div>
 	</div>
 </header>
+
+<?php if ( ! is_front_page() && ! is_404() ) : ?>
+	<?php shumoff_breadcrumbs(); ?>
+<?php endif; ?>
