@@ -483,52 +483,20 @@ add_filter( 'robots_txt', 'shumoff_robots_txt', 10, 2 );
 
 /**
  * ============================================================
- * Form handler: appointment form submission
+ * Форма заявки обрабатывается плагином shumoff-core
+ * (includes/leads.php): AJAX + фолбэк без JS, nonce, honeypot,
+ * rate-limit, CPT «Заявки», почта и Telegram.
+ * Здесь — только вывод уведомления для фолбэка без JS.
  * ============================================================
  */
-function shumoff_handle_appointment_form() {
-	if ( ! isset( $_POST['appt_name'] ) ) {
-		return;
-	}
-
-	// Verify nonce (optional — add nonce field if desired)
-	$name  = sanitize_text_field( $_POST['appt_name'] ?? '' );
-	$phone = sanitize_text_field( $_POST['appt_phone'] ?? '' );
-	$car   = sanitize_text_field( $_POST['appt_car'] ?? '' );
-
-	if ( empty( $name ) || empty( $phone ) ) {
-		wp_die( 'Пожалуйста, заполните обязательные поля.' );
-	}
-
-	// Email to admin
-	$to      = get_option( 'admin_email' );
-	$subject = 'Новая заявка с сайта Shumoff — ' . $name;
-	$message = "Имя: $name\n";
-	$message .= "Телефон: $phone\n";
-	$message .= "Автомобиль: $car\n";
-	$message .= "Дата: " . current_time( 'd.m.Y H:i' ) . "\n";
-	$message .= "URL: " . home_url( $_SERVER['REQUEST_URI'] ?? '' ) . "\n";
-
-	$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
-
-	wp_mail( $to, $subject, $message, $headers );
-
-	// Redirect to thank-you page
-	$redirect = add_query_arg( 'sent', '1', home_url( '/' ) );
-	wp_safe_redirect( $redirect );
-	exit;
-}
-add_action( 'template_redirect', 'shumoff_handle_appointment_form' );
-
-/**
- * Admin notice: form sent successfully
- */
-function shumoff_form_success_notice() {
+function shumoff_form_notice() {
 	if ( isset( $_GET['sent'] ) && '1' === $_GET['sent'] ) {
 		echo '<div class="form-success-notice">✓ Заявка отправлена! Мы свяжемся с вами в течение 15 минут.</div>';
+	} elseif ( isset( $_GET['lead_error'] ) ) {
+		echo '<div class="form-success-notice form-success-notice--error">' . esc_html( sanitize_text_field( wp_unslash( $_GET['lead_error'] ) ) ) . '</div>';
 	}
 }
-add_action( 'wp_footer', 'shumoff_form_success_notice' );
+add_action( 'wp_footer', 'shumoff_form_notice' );
 
 /**
  * ============================================================

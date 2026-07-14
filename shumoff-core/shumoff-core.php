@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'SHUMOFF_CORE_DIR', plugin_dir_path( __FILE__ ) );
 
 require_once SHUMOFF_CORE_DIR . 'includes/prices.php';
+require_once SHUMOFF_CORE_DIR . 'includes/leads.php';
 
 add_action( 'init', 'shumoff_register_cpts_and_taxonomies' );
 
@@ -184,6 +185,7 @@ function shumoff_register_cpts_and_taxonomies() {
 register_activation_hook( __FILE__, 'shumoff_core_activate' );
 function shumoff_core_activate() {
 	shumoff_register_cpts_and_taxonomies();
+	shumoff_register_leads_cpt();
 	flush_rewrite_rules();
 }
 
@@ -375,6 +377,20 @@ function shumoff_register_acf_fields() {
 					'label'        => 'Ссылка Telegram',
 					'name'         => 'contact_telegram',
 					'type'         => 'url',
+				),
+				array(
+					'key'          => 'field_notify_telegram_token',
+					'label'        => 'Telegram-бот: токен (для уведомлений о заявках)',
+					'name'         => 'notify_telegram_token',
+					'type'         => 'text',
+					'instructions' => 'Создайте бота через @BotFather и вставьте токен. Пусто — уведомления в Telegram выключены.',
+				),
+				array(
+					'key'          => 'field_notify_telegram_chat',
+					'label'        => 'Telegram-бот: chat_id',
+					'name'         => 'notify_telegram_chat',
+					'type'         => 'text',
+					'instructions' => 'ID чата или группы, куда слать заявки.',
 				),
 			),
 			'location' => array(

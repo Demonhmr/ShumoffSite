@@ -59,6 +59,42 @@ body.menu-open {
   margin-right: 8px;
 }
 
+/* ---------- Form: honeypot и статус отправки ---------- */
+.form-group--hp {
+  position: absolute !important;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.appointment-form__status {
+  display: none;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.appointment-form__status.is-sending {
+  display: block;
+  color: var(--color-text-light);
+}
+
+.appointment-form__status.is-success {
+  display: block;
+  color: #27ae60;
+}
+
+.appointment-form__status.is-error {
+  display: block;
+  color: #e53935;
+}
+
+.form-success-notice--error {
+  background: #e53935;
+}
+
 /* ---------- Form validation ---------- */
 .form__error {
   display: none;

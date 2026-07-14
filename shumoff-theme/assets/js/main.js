@@ -19,6 +19,7 @@
     initFaqSingleOpen();
     initBaSlider();
     initSmoothScroll();
+    initPhoneMask();
     initFormValidation();
   });
 
@@ -179,7 +180,39 @@
     });
   }
 
-  // ─── Form Validation ─────────────────────────
+  // ─── Phone Mask: +7 (XXX) XXX-XX-XX ──────────
+  function initPhoneMask() {
+    var inputs = document.querySelectorAll('input[data-validate-phone]');
+    if (!inputs.length) return;
+
+    inputs.forEach(function (input) {
+      input.addEventListener('input', function () {
+        var value = input.value;
+
+        // Иностранные номера (+ не с 7) не форматируем
+        if (/^\+(?!7)/.test(value.trim())) return;
+
+        var digits = value.replace(/\D/g, '');
+        if (!digits) {
+          input.value = '';
+          return;
+        }
+        if (digits.charAt(0) === '8') digits = '7' + digits.slice(1);
+        if (digits.charAt(0) !== '7') digits = '7' + digits;
+        digits = digits.slice(0, 11);
+
+        var out = '+7';
+        if (digits.length > 1) out += ' (' + digits.slice(1, 4);
+        if (digits.length >= 4) out += ')';
+        if (digits.length > 4) out += ' ' + digits.slice(4, 7);
+        if (digits.length > 7) out += '-' + digits.slice(7, 9);
+        if (digits.length > 9) out += '-' + digits.slice(9, 11);
+        input.value = out;
+      });
+    });
+  }
+
+  // ─── Form Validation + AJAX Submit ───────────
   function initFormValidation() {
     var forms = document.querySelectorAll('form[data-validate]');
     if (!forms.length) return;
@@ -207,7 +240,16 @@
 
         if (!isValid) {
           e.preventDefault();
+          return;
         }
+
+        // AJAX-отправка; без fetch/настроек — обычный POST (фолбэк)
+        var action = form.getAttribute('data-ajax-action');
+        var cfg = window.shumoffTheme || {};
+        if (!action || !cfg.ajaxurl || !window.fetch) return;
+
+        e.preventDefault();
+        submitFormAjax(form, action, cfg.ajaxurl);
       });
 
       // Снятие ошибки при вводе
@@ -217,6 +259,52 @@
         });
       });
     });
+  }
+
+  function submitFormAjax(form, action, ajaxurl) {
+    var button = form.querySelector('button[type="submit"]');
+    var status = form.querySelector('.appointment-form__status');
+    var data = new FormData(form);
+    data.append('action', action);
+
+    if (button) button.disabled = true;
+    setFormStatus(status, 'Отправляем…', 'sending');
+
+    fetch(ajaxurl, {
+      method: 'POST',
+      body: data,
+      credentials: 'same-origin'
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (result) {
+        var payload = (result && result.data) || {};
+        if (result && result.success) {
+          form.reset();
+          setFormStatus(status, payload.message || 'Заявка отправлена!', 'success');
+        } else {
+          setFormStatus(status, payload.message || 'Не удалось отправить заявку. Позвоните нам, пожалуйста.', 'error');
+          if (payload.field === 'phone') {
+            var phone = form.querySelector('[data-validate-phone]');
+            if (phone) toggleFieldError(form, phone, false);
+          }
+          if (payload.field === 'name') {
+            var name = form.querySelector('input[name="appt_name"]');
+            if (name) toggleFieldError(form, name, false);
+          }
+        }
+      })
+      .catch(function () {
+        setFormStatus(status, 'Не удалось отправить заявку. Проверьте соединение или позвоните нам.', 'error');
+      })
+      .finally(function () {
+        if (button) button.disabled = false;
+      });
+  }
+
+  function setFormStatus(status, message, state) {
+    if (!status) return;
+    status.textContent = message;
+    status.className = 'appointment-form__status' + (state ? ' is-' + state : '');
   }
 
   function toggleFieldError(form, input, ok) {

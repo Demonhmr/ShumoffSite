@@ -26,7 +26,16 @@ $appt_text  = ! empty( $args['text'] ) ? $args['text'] : __( 'Оставьте �
 			</div>
 
 			<div class="appointment-section__form">
-				<form class="appointment-form" method="post" action="<?php echo esc_url( home_url( '/' ) ); ?>" data-validate novalidate>
+				<form class="appointment-form" method="post" action="<?php echo esc_url( home_url( '/' ) ); ?>" data-validate data-ajax-action="shumoff_appointment" novalidate>
+					<?php wp_nonce_field( 'shumoff_appointment', 'shumoff_nonce' ); ?>
+					<input type="hidden" name="appt_page" value="<?php echo esc_url( get_permalink() ? get_permalink() : home_url( '/' ) ); ?>">
+
+					<!-- Honeypot: скрыто стилями, люди не заполняют -->
+					<div class="form-group form-group--hp" aria-hidden="true">
+						<label for="appt-company"><?php _e( 'Компания', 'shumoff' ); ?></label>
+						<input type="text" id="appt-company" name="appt_company" tabindex="-1" autocomplete="off">
+					</div>
+
 					<div class="form-group">
 						<label for="appt-name"><?php _e( 'Ваше имя', 'shumoff' ); ?> <span class="required">*</span></label>
 						<input type="text" id="appt-name" name="appt_name" placeholder="<?php esc_attr_e( 'Иван Иванов', 'shumoff' ); ?>" required>
@@ -60,6 +69,8 @@ $appt_text  = ! empty( $args['text'] ) ? $args['text'] : __( 'Оставьте �
 					<div class="form-group">
 						<button type="submit" class="btn btn-primary btn--lg btn--block"><?php _e( 'Рассчитать', 'shumoff' ); ?></button>
 					</div>
+
+					<p class="appointment-form__status" role="status" aria-live="polite"></p>
 
 					<p class="appointment-form__privacy">
 						<?php _e( 'Нажимая кнопку, вы соглашаетесь с', 'shumoff' ); ?> <a href="<?php echo esc_url( home_url( '/privacy-policy' ) ); ?>"><?php _e( 'политикой конфиденциальности', 'shumoff' ); ?></a>.
