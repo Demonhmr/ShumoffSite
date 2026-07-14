@@ -136,7 +136,7 @@ get_header();
 										<?php endif; ?>
 									</tbody>
 								</table>
-								<a href="#appointment" class="btn <?php echo $shumoff_meta['featured'] ? 'btn-primary' : 'btn-outline'; ?>"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
+								<a href="#appointment" data-quiz-open class="btn <?php echo $shumoff_meta['featured'] ? 'btn-primary' : 'btn-outline'; ?>"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
 							</div>
 						<?php endforeach; ?>
 					</div>
@@ -153,7 +153,7 @@ get_header();
 					<p class="section-subtitle">
 						<?php printf( __( 'Рассчитаем стоимость для вашего автомобиля по телефону %s или по заявке ниже.', 'shumoff' ), esc_html( shumoff_contact( 'contact_phone' ) ) ); ?>
 					</p>
-					<a href="#appointment" class="btn btn-primary"><?php _e( 'Рассчитать стоимость', 'shumoff' ); ?></a>
+					<a href="#appointment" data-quiz-open class="btn btn-primary"><?php _e( 'Рассчитать стоимость', 'shumoff' ); ?></a>
 				</div>
 			</section>
 		<?php endif; ?>

@@ -99,6 +99,18 @@ function shumoff_enqueue_scripts() {
 		'nonce'   => wp_create_nonce( 'shumoff-nonce' ),
 	) );
 
+	// Квиз-калькулятор: скрипт + конфиг с ценами (данные из shumoff-core).
+	if ( function_exists( 'shumoff_quiz_config' ) ) {
+		wp_enqueue_script(
+			'theme-quiz',
+			get_stylesheet_directory_uri() . '/assets/js/quiz.js',
+			array(),
+			filemtime( get_stylesheet_directory() . '/assets/js/quiz.js' ),
+			true
+		);
+		wp_localize_script( 'theme-quiz', 'shumoffQuiz', shumoff_quiz_config() );
+	}
+
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}

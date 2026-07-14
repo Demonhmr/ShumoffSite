@@ -161,6 +161,9 @@
   function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(function (link) {
       link.addEventListener('click', function (e) {
+        // Кнопки квиза обрабатывает quiz.js — не скроллим.
+        if (this.hasAttribute('data-quiz-open')) return;
+
         var href = this.getAttribute('href');
         if (!href || href === '#') return;
 

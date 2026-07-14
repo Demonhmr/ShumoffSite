@@ -14,6 +14,7 @@ define( 'SHUMOFF_CORE_DIR', plugin_dir_path( __FILE__ ) );
 
 require_once SHUMOFF_CORE_DIR . 'includes/prices.php';
 require_once SHUMOFF_CORE_DIR . 'includes/leads.php';
+require_once SHUMOFF_CORE_DIR . 'includes/quiz.php';
 
 add_action( 'init', 'shumoff_register_cpts_and_taxonomies' );
 
@@ -211,6 +212,23 @@ function shumoff_register_acf_fields() {
 				'name'          => 'case_gallery',
 				'type'          => 'gallery',
 				'return_format' => 'array',
+			),
+			array(
+				'key'           => 'field_case_photo_before',
+				'label'         => 'Слайдер «До/После»: фото ДО',
+				'name'          => 'case_photo_before',
+				'type'          => 'image',
+				'return_format' => 'array',
+				'preview_size'  => 'shumoff-thumbnail',
+				'instructions'  => 'Пара фото с одного ракурса. Заполнены оба — на странице кейса появится интерактивный слайдер.',
+			),
+			array(
+				'key'           => 'field_case_photo_after',
+				'label'         => 'Слайдер «До/После»: фото ПОСЛЕ',
+				'name'          => 'case_photo_after',
+				'type'          => 'image',
+				'return_format' => 'array',
+				'preview_size'  => 'shumoff-thumbnail',
 			),
 			array(
 				'key'   => 'field_case_materials',

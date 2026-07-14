@@ -53,7 +53,41 @@ get_header();
 					$case_time     = shumoff_field( 'case_time' );
 					$noise_before  = shumoff_field( 'case_noise_before' );
 					$noise_after   = shumoff_field( 'case_noise_after' );
+					$photo_before  = shumoff_field( 'case_photo_before' );
+					$photo_after   = shumoff_field( 'case_photo_after' );
 					?>
+
+					<!-- ============================================================
+					     BEFORE/AFTER SLIDER — механика в main.js (initBaSlider)
+					     ============================================================ -->
+					<?php if ( is_array( $photo_before ) && is_array( $photo_after ) ) : ?>
+						<section class="case-ba-section" aria-label="Сравнение до и после">
+							<h2 class="section-title"><?php _e( 'До и после', 'shumoff' ); ?></h2>
+							<div class="ba-slider">
+								<?php
+								shumoff_acf_image(
+									$photo_before,
+									'shumoff-featured',
+									array(
+										'class' => 'ba-slider__image ba-slider__image--before',
+										'alt'   => __( 'До шумоизоляции', 'shumoff' ),
+									)
+								);
+								shumoff_acf_image(
+									$photo_after,
+									'shumoff-featured',
+									array(
+										'class' => 'ba-slider__image ba-slider__image--after',
+										'alt'   => __( 'После шумоизоляции', 'shumoff' ),
+									)
+								);
+								?>
+								<span class="ba-slider__label ba-slider__label--before"><?php _e( 'До', 'shumoff' ); ?></span>
+								<span class="ba-slider__label ba-slider__label--after"><?php _e( 'После', 'shumoff' ); ?></span>
+								<div class="ba-slider__handle" aria-hidden="true"></div>
+							</div>
+						</section>
+					<?php endif; ?>
 
 					<!-- ============================================================
 					     GALLERY SECTION

@@ -155,7 +155,7 @@ get_header();
 							<p class="package-card__price">
 								<?php printf( __( 'от %s ₽', 'shumoff' ), esc_html( number_format( (int) $shumoff_package['price_from'], 0, ',', ' ' ) ) ); ?>
 							</p>
-							<a href="#appointment" class="btn <?php echo $shumoff_package['featured'] ? 'btn-primary' : 'btn-outline'; ?>"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
+							<a href="#appointment" data-quiz-open class="btn <?php echo $shumoff_package['featured'] ? 'btn-primary' : 'btn-outline'; ?>"><?php _e( 'Рассчитать', 'shumoff' ); ?></a>
 						</div>
 					</article>
 				<?php endforeach; ?>

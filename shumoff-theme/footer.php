@@ -83,6 +83,8 @@
 	</div>
 </footer>
 
+<?php get_template_part( 'template-parts/quiz-modal' ); ?>
+
 <!-- ===== Schema.org BreadcrumbList (JSON-LD): тот же источник, что и видимые крошки ===== -->
 <?php if ( ! is_front_page() && ! is_404() ) : ?>
 	<?php shumoff_print_jsonld( shumoff_schema_breadcrumbs() ); ?>
