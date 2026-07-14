@@ -186,7 +186,11 @@
     if (!inputs.length) return;
 
     inputs.forEach(function (input) {
-      input.addEventListener('input', function () {
+      input.addEventListener('input', function (e) {
+        // При удалении не переформатируем: иначе Backspace на скобке/дефисе
+        // тут же восстанавливается маской и поле «залипает».
+        if (e.inputType && e.inputType.indexOf('delete') === 0) return;
+
         var value = input.value;
 
         // Иностранные номера (+ не с 7) не форматируем

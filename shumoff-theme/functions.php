@@ -347,6 +347,9 @@ add_filter( 'excerpt_more', 'shumoff_excerpt_more' );
  * ============================================================
  */
 
+// Canonical выводит тема (header.php) — убираем дубль от ядра WP.
+remove_action( 'wp_head', 'rel_canonical' );
+
 /**
  * Canonical URL текущей страницы — всегда «чистый» постоянный адрес,
  * без query string (utm-метки, ?s= и т.п. не плодят дубли).
@@ -678,8 +681,10 @@ function shumoff_print_jsonld( $schema ) {
 	if ( empty( $schema ) ) {
 		return;
 	}
+	// Без JSON_UNESCAPED_SLASHES: экранирование «\/» не даёт строке
+	// «</script>» из редактируемого контента закрыть тег раньше времени.
 	echo '<script type="application/ld+json">'
-		. wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES )
+		. wp_json_encode( $schema, JSON_UNESCAPED_UNICODE )
 		. '</script>' . "\n";
 }
 
@@ -919,11 +924,17 @@ add_action( 'wp_head', 'shumoff_preload_hero', 2 );
  * @param array  $attrs Дополнительные атрибуты <img>.
  */
 function shumoff_acf_image( $image, $size = 'shumoff-thumbnail', $attrs = array() ) {
-	if ( ! is_array( $image ) ) {
+	$attrs = wp_parse_args( $attrs, array( 'loading' => 'lazy' ) );
+
+	// ACF может вернуть и просто ID вложения (return_format id).
+	if ( is_numeric( $image ) ) {
+		echo wp_get_attachment_image( (int) $image, $size, false, $attrs );
 		return;
 	}
 
-	$attrs = wp_parse_args( $attrs, array( 'loading' => 'lazy' ) );
+	if ( ! is_array( $image ) ) {
+		return;
+	}
 
 	if ( ! empty( $image['ID'] ) ) {
 		echo wp_get_attachment_image( (int) $image['ID'], $size, false, $attrs );
@@ -934,6 +945,14 @@ function shumoff_acf_image( $image, $size = 'shumoff-thumbnail', $attrs = array(
 	if ( ! $src ) {
 		return;
 	}
+
+	// alt в одном месте: из $attrs, иначе из данных ACF — без дублей атрибута.
+	$alt = $attrs['alt'] ?? ( $image['alt'] ?? '' );
+	if ( '' === (string) $alt ) {
+		$alt = get_the_title();
+	}
+	unset( $attrs['alt'] );
+
 	$attr_html = '';
 	foreach ( $attrs as $key => $value ) {
 		$attr_html .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
@@ -941,7 +960,7 @@ function shumoff_acf_image( $image, $size = 'shumoff-thumbnail', $attrs = array(
 	printf(
 		'<img src="%s" alt="%s"%s>',
 		esc_url( $src ),
-		esc_attr( $image['alt'] ?? get_the_title() ),
+		esc_attr( $alt ),
 		$attr_html // экранировано выше
 	);
 }

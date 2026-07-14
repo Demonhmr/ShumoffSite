@@ -104,9 +104,10 @@ function shumoff_lead_rate_limited() {
  * @return array { success: bool, message: string, field?: string }
  */
 function shumoff_process_lead( $data ) {
-	// Honeypot: поле «appt_company» скрыто стилями; человек его не заполняет.
+	// Honeypot: поле «appt_extra» скрыто стилями; человек его не заполняет.
 	// Боту отвечаем «успехом», чтобы не раскрывать защиту.
-	if ( ! empty( $data['appt_company'] ) ) {
+	// appt_company — старое имя поля, принимаем на случай закэшированных страниц.
+	if ( ! empty( $data['appt_extra'] ) || ! empty( $data['appt_company'] ) ) {
 		return array(
 			'success' => true,
 			'message' => 'Заявка отправлена! Мы свяжемся с вами в течение 15 минут.',
