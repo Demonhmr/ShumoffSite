@@ -37,6 +37,12 @@ html {
 	-webkit-text-size-adjust: 100%;
 }
 
+/* Атрибут hidden должен скрывать элемент даже при
+   заданном display (например .quiz-modal, .btn). */
+[hidden] {
+	display: none !important;
+}
+
 body {
 	font-family: var(--font-body);
 	font-size: 1rem;
